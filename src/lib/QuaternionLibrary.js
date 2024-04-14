@@ -28,6 +28,11 @@ class Vector3 {
   }
 }
 
+function GlobalToLocalVector(parentMesh, vectorToTransform)
+{
+  return parentMesh.worldToLocal(vectorToTransform);
+}
+
 export class RotationQuaternion {
   constructor(x, y, z, a) {
     const cos_a2 = Math.cos(a / 2);
@@ -172,7 +177,7 @@ export class RotationQuaternion {
     threeObject.setRotationFromQuaternion(threeQuat);
   }
 
-  ApplyToThreeObjectAsGlobal(threeObject, parentGlobalQuaternion) {
+  ApplyToThreeObjectAsGlobal(threeObject, parentGlobalQuaternion, parentMesh) {
     let objQuat = threeObject.quaternion;
     let customObjQuat = RotationQuaternion.ConstructQuaternionFromAxes(objQuat.x, objQuat.y, objQuat.z, objQuat.w);
 
@@ -183,11 +188,20 @@ export class RotationQuaternion {
       resultQuat.GetQ_2,
       resultQuat.GetQ_3
     );
-
     threeObject.setRotationFromQuaternion(threeQuat);
+
+    if(parentMesh)
+    {
+      const localPos = parentMesh.worldToLocal(threeObject.position);
+      const customLocalPos = new Vector3(localPos.x, localPos.y, localPos.z);
+      const transformedCustomLocalPos = this.RotateVectorActive(customLocalPos);
+      const resultWorldPos = parentMesh.localToWorld(THREE.Vector3(transformedCustomLocalPos.GetX(), transformedCustomLocalPos.GetY(), transformedCustomLocalPos.GetZ()));
+  
+      threeObject.position.copy(resultWorldPos);
+    }
   }
 
-  ApplyToThreeObjectAsLocal(threeObject, parentGlobalQuaternion) {
+  ApplyToThreeObjectAsLocal(threeObject, parentGlobalQuaternion, parentMesh) {
     let objQuat = threeObject.quaternion;
     let customObjQuat = RotationQuaternion.ConstructQuaternionFromAxes(objQuat.x, objQuat.y, objQuat.z, objQuat.w);
 
@@ -198,7 +212,16 @@ export class RotationQuaternion {
       resultQuat.GetQ_2,
       resultQuat.GetQ_3
     );
-
     threeObject.setRotationFromQuaternion(threeQuat);
+
+    if(parentMesh)
+    {
+      const localPos = parentMesh.worldToLocal(threeObject.position);
+      const customLocalPos = new Vector3(localPos.x, localPos.y, localPos.z);
+      const transformedCustomLocalPos = this.RotateVectorActive(customLocalPos);
+      const resultWorldPos = parentMesh.localToWorld(THREE.Vector3(transformedCustomLocalPos.GetX(), transformedCustomLocalPos.GetY(), transformedCustomLocalPos.GetZ()));
+  
+      threeObject.position.copy(resultWorldPos);
+    }
   }
 }

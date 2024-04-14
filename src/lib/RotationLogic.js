@@ -2,10 +2,10 @@
 //propagate euler to children as matrix
 import * as quatlib from "./QuaternionLibrary";
 
-function RotateChildren(childrenMeshesToRotate, rotationQuaternion, parentGlobalQuaternion)
+function RotateChildren(childrenMeshesToRotate, rotationQuaternion, parentGlobalQuaternion, parentMesh)
 {
     for(let mesh of childrenMeshesToRotate)
     {
-        rotationQuaternion.ApplyToThreeObjectAsGlobal(mesh, parentGlobalQuaternion);
+        rotationQuaternion.ApplyToThreeObjectAsGlobal(mesh, parentGlobalQuaternion, parentMesh);
     }
 }
