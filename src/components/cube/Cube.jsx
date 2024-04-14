@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import * as dat from 'dat.gui'; // Import dat.gui
+import React, { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import * as dat from "dat.gui"; // Import dat.gui
 
 const Cube = () => {
   const containerRef = useRef(null);
@@ -12,10 +12,13 @@ const Cube = () => {
     const h = window.innerHeight;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#242424');
+    scene.background = new THREE.Color("#242424");
 
     const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-    camera.position.z = 2;
+    camera.position.z = 10;
+
+    const axesHelper = new THREE.AxesHelper(15);
+    scene.add(axesHelper);
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(w, h);
@@ -26,13 +29,17 @@ const Cube = () => {
 
     // Create or update the cube mesh
     if (!cubeRef.current) {
-      const geometry = new THREE.BoxGeometry(1, 1, 1);
+      const geometry = new THREE.BoxGeometry(3, 3, 3);
       const material = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Change color to blue
       const cubeMesh = new THREE.Mesh(geometry, material);
       scene.add(cubeMesh);
+
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
     }
 
+    cubeRef.current.position.x += 1;
+    cubeRef.current.position.y += 1;
+    cubeRef.current.position.z += 1;
     // Add lights to the scene
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
@@ -44,10 +51,10 @@ const Cube = () => {
     // Setup dat.gui for controlling cube rotation
     const gui = new dat.GUI();
     const rotation = { x: 0, y: 0, z: 0 };
-    const cubeRotationFolder = gui.addFolder('Cube Rotation');
-    cubeRotationFolder.add(rotation, 'x', 0, 360).name('Rotation X');
-    cubeRotationFolder.add(rotation, 'y', 0, 360).name('Rotation Y');
-    cubeRotationFolder.add(rotation, 'z', 0, 360).name('Rotation Z');
+    const cubeRotationFolder = gui.addFolder("Cube Rotation");
+    cubeRotationFolder.add(rotation, "x", 0, 360).name("Rotation X");
+    cubeRotationFolder.add(rotation, "y", 0, 360).name("Rotation Y");
+    cubeRotationFolder.add(rotation, "z", 0, 360).name("Rotation Z");
 
     const animate = () => {
       requestAnimationFrame(animate);
@@ -58,7 +65,7 @@ const Cube = () => {
           THREE.MathUtils.degToRad(rotation.x),
           THREE.MathUtils.degToRad(rotation.y),
           THREE.MathUtils.degToRad(rotation.z),
-          'XYZ'
+          "XYZ"
         )
       );
       cubeRef.current.quaternion.copy(quaternion);
