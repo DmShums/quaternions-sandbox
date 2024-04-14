@@ -6,10 +6,10 @@ const ComponentSelector = ({ selectedComponent, handleComponentChange }) => {
     <>
         <select className="selector" value={selectedComponent} onChange={handleComponentChange}>
         <option value="cube">Cube</option>
-        <option value="triangle">Triangle</option>
+        <option value="pyramid">Pyramid</option>
+        <option value="object">Your object</option>
         </select>
     </>
-    
   );
 };
 
