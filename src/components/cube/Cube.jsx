@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui"; // Import dat.gui
+import { InteractionManager } from 'three.interactive';
 
 const Cube = () => {
   const containerRef = useRef(null);
@@ -25,7 +26,7 @@ const Cube = () => {
 
     containerRef.current.appendChild(renderer.domElement);
 
-    new OrbitControls(camera, renderer.domElement);
+    // const orbConrols = new OrbitControls(camera, renderer.domElement);
 
     // Create or update the cube mesh
     if (!cubeRef.current) {
