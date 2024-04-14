@@ -1,34 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import * as dat from 'dat.gui'; // Import dat.gui
 
-import ComponentSelector from './components/selector/ComponentSelector';
-import Cube from './components/cube/Cube';
-import Pyramid from './components/pyramid/Pyramid';
+import ComponentSelector from './components/Selector/ComponentSelector';
+import Cube from './components/Cube/Cube';
+import Pyramid from './components/Pyramid/Pyramid';
+
+import FileUpload from './components/FileUpload/FileUpload';
+import ObjectLoader from './components/ObjectLoader/ObjectLoader';
+import YourObject from './components/YourObject/YourObject';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 function App() {
   const [selectedComponent, setSelectedComponent] = useState('cube');
-  const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 }); // State for cube rotation
+  const [file, setFile] = useState(null); // State to store uploaded file
+  const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 }); // State for rotation
 
   const handleComponentChange = (event) => {
     setSelectedComponent(event.target.value);
   };
 
-  // Initialize dat.gui controls
-  // useEffect(() => {
-  //   const gui = new dat.GUI(); // Create dat.gui instance
-
-  //   // Add controls for cube rotation
-  //   const cubeRotationFolder = gui.addFolder('Cube Rotation');
-  //   cubeRotationFolder.add(rotation, 'x', 0, 360).name('Rotation X');
-  //   cubeRotationFolder.add(rotation, 'y', 0, 360).name('Rotation Y');
-  //   cubeRotationFolder.add(rotation, 'z', 0, 360).name('Rotation Z');
-
-  //   // Destroy dat.gui instance when component unmounts
-  //   return () => {
-  //     gui.destroy();
-  //   };
-  // }, []);
+  const handleFileChange = (file) => {
+    setFile(file);
+  };
 
   return (
     <>
@@ -36,8 +30,14 @@ function App() {
 
       {selectedComponent === 'cube' ? (
         <Cube rotationX={rotation.x} rotationY={rotation.y} rotationZ={rotation.z} />
-      ) : (
+      ) : selectedComponent === 'pyramid' ? (
         <Pyramid rotationX={rotation.x} rotationY={rotation.y} rotationZ={rotation.z} />
+      ) : (
+        <>
+          <FileUpload onFileChange={handleFileChange} />
+          {file && <ObjectLoader fileURL={URL.createObjectURL(file)} rotation={rotation} />}
+          {file && <YourObject fileURL={URL.createObjectURL(file)} rotation={rotation} />}
+        </>
       )}
     </>
   );
