@@ -61,6 +61,15 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
     let oldY = 0;
     let oldZ = 0;
 
+    function createQuaternion(xQ0, xQ1, xQ2, xQ3) {
+      const quaternion = new QuaternionLib.RotationQuaternion(1, 1, 1, 1);
+      quaternion.SetQ_0(xQ0);
+      quaternion.SetQ_1(xQ1);
+      quaternion.SetQ_2(xQ2);
+      quaternion.SetQ_3(xQ3);
+      return quaternion;
+    }
+
     const animate = () => {
       requestAnimationFrame(animate);
 
@@ -110,34 +119,15 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
         THREE.MathUtils.degToRad(newZ)
       );
 
-      const quaternionX = new QuaternionLib.RotationQuaternion(1, 1, 1, 1);
-      quaternionX.SetQ_0 = xQ0;
-      quaternionX.SetQ_1 = xQ1;
-      quaternionX.SetQ_2 = xQ2;
-      quaternionX.SetQ_3 = xQ3;
+      const quaternionX = createQuaternion(xQ0, xQ1, xQ2, xQ3);
+      const quaternionY = createQuaternion(yQ0, yQ1, yQ2, yQ3);
+      const quaternionZ = createQuaternion(zQ0, zQ1, zQ2, zQ3);
 
-      const quaternionY = new QuaternionLib.RotationQuaternion(1, 1, 1, 1);
-      quaternionY.SetQ_0 = yQ0;
-      quaternionY.SetQ_1 = yQ1;
-      quaternionY.SetQ_2 = yQ2;
-      quaternionY.SetQ_3 = yQ3;
+      const rotationQuaternion = quaternionX
+        .PreMultiply(quaternionY)
+        .PreMultiply(quaternionZ);
 
-      const quaternionZ = new QuaternionLib.RotationQuaternion(1, 1, 1, 1);
-      quaternionZ.SetQ_0 = zQ0;
-      quaternionZ.SetQ_1 = zQ1;
-      quaternionZ.SetQ_2 = zQ2;
-      quaternionZ.SetQ_3 = zQ3;
-
-      //   //   const rotationQuaternion = quaternionX
-      //   //     .PreMultiply(quaternionY)
-      //   //     .PreMultiply(quaternionZ);
-
-      //   //   console.log(quaternionX);
-      quaternionX.ApplyToThreeObject(pyramidRef.current);
-
-      quaternionY.ApplyToThreeObject(pyramidRef.current);
-
-      quaternionZ.ApplyToThreeObject(pyramidRef.current);
+      rotationQuaternion.ApplyToThreeObjectDirect(pyramidRef.current);
 
       renderer.render(scene, camera);
     };
