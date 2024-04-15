@@ -205,15 +205,18 @@ const Cube = () => {
       interactionManager.update();
 
       // Update cube rotation
-      // const quaternion = new THREE.Quaternion().setFromEuler(
-      //   new THREE.Euler(
-      //     THREE.MathUtils.degToRad(rotation.x),
-      //     THREE.MathUtils.degToRad(rotation.y),
-      //     THREE.MathUtils.degToRad(rotation.z),
-      //     "XYZ"
-      //   )
-      // );
-      // cubeRef.current.quaternion.copy(quaternion);
+      // if(!rotationStruct.current.mouseDown)
+      // {
+      //   const quaternion = new THREE.Quaternion().setFromEuler(
+      //     new THREE.Euler(
+      //       THREE.MathUtils.degToRad(rotation.x),
+      //       THREE.MathUtils.degToRad(rotation.y),
+      //       THREE.MathUtils.degToRad(rotation.z),
+      //       "XYZ"
+      //     )
+      //   );
+      //   cubeRef.current.quaternion.copy(quaternion);
+      // }
 
       renderer.render(scene, camera);
     };
