@@ -1,4 +1,4 @@
-// import * as THREE from 'three';
+// import * as THREE from "three";
 
 // const quaternion = new THREE.Quaternion();
 // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI / 2 );
@@ -205,10 +205,10 @@ export class RotationQuaternion {
 
   static ConstructQuaternionFromAxes(q_0, q_1, q_2, q_3) {
     const newQuaternion = new RotationQuaternion(0, 0, 0, 0);
-    newQuaternion.SetQ_0(q_0);
-    newQuaternion.SetQ_1(q_1);
-    newQuaternion.SetQ_2(q_2);
-    newQuaternion.SetQ_3(q_3);
+    newQuaternion.SetQ_0 = q_0;
+    newQuaternion.SetQ_1 = q_1;
+    newQuaternion.SetQ_2 = q_2;
+    newQuaternion.SetQ_3 = q_3;
     return newQuaternion;
   }
 
@@ -240,49 +240,49 @@ export class RotationQuaternion {
 
   PostMultiply(anotherQuaternion) {
     const t_0 =
-      this.q_0 * anotherQuaternion.GetQ_0() -
-      this.q_1 * anotherQuaternion.GetQ_1() -
-      this.q_2 * anotherQuaternion.GetQ_2() -
-      this.q_3 * anotherQuaternion.GetQ_3();
+      this.q_0 * anotherQuaternion.q_0 -
+      this.q_1 * anotherQuaternion.q_1 -
+      this.q_2 * anotherQuaternion.q_2 -
+      this.q_3 * anotherQuaternion.q_3;
     const t_1 =
-      this.q_0 * anotherQuaternion.GetQ_1() +
-      this.q_1 * anotherQuaternion.GetQ_0() -
-      this.q_2 * anotherQuaternion.GetQ_3() +
-      this.q_3 * anotherQuaternion.GetQ_2();
+      this.q_0 * anotherQuaternion.q_1 +
+      this.q_1 * anotherQuaternion.q_0 -
+      this.q_2 * anotherQuaternion.q_3 +
+      this.q_3 * anotherQuaternion.q_2;
     const t_2 =
-      this.q_0 * anotherQuaternion.GetQ_2() +
-      this.q_1 * anotherQuaternion.GetQ_3() +
-      this.q_2 * anotherQuaternion.GetQ_0() -
-      this.q_3 * anotherQuaternion.GetQ_1();
+      this.q_0 * anotherQuaternion.q_2 +
+      this.q_1 * anotherQuaternion.q_3 +
+      this.q_2 * anotherQuaternion.q_0 -
+      this.q_3 * anotherQuaternion.q_1;
     const t_3 =
-      this.q_0 * anotherQuaternion.GetQ_3() -
-      this.q_1 * anotherQuaternion.GetQ_2() +
-      this.q_2 * anotherQuaternion.GetQ_1() +
-      this.q_3 * anotherQuaternion.GetQ_0();
+      this.q_0 * anotherQuaternion.q_3 -
+      this.q_1 * anotherQuaternion.q_2 +
+      this.q_2 * anotherQuaternion.q_1 +
+      this.q_3 * anotherQuaternion.q_0;
     return RotationQuaternion.ConstructQuaternionFromAxes(t_0, t_1, t_2, t_3);
   }
 
   PreMultiply(anotherQuaternion) {
     const t_0 =
-      this.q_0 * anotherQuaternion.GetQ_0() -
-      this.q_1 * anotherQuaternion.GetQ_1() -
-      this.q_2 * anotherQuaternion.GetQ_2() -
-      this.q_3 * anotherQuaternion.GetQ_3();
+      this.q_0 * anotherQuaternion.q_0 -
+      this.q_1 * anotherQuaternion.q_1 -
+      this.q_2 * anotherQuaternion.q_2 -
+      this.q_3 * anotherQuaternion.q_3;
     const t_1 =
-      this.q_1 * anotherQuaternion.GetQ_0() +
-      this.q_0 * anotherQuaternion.GetQ_1() -
-      this.q_3 * anotherQuaternion.GetQ_2() +
-      this.q_2 * anotherQuaternion.GetQ_3();
+      this.q_1 * anotherQuaternion.q_0 +
+      this.q_0 * anotherQuaternion.q_1 -
+      this.q_3 * anotherQuaternion.q_2 +
+      this.q_2 * anotherQuaternion.q_3;
     const t_2 =
-      this.q_2 * anotherQuaternion.GetQ_0() +
-      this.q_3 * anotherQuaternion.GetQ_1() +
-      this.q_0 * anotherQuaternion.GetQ_2() -
-      this.q_1 * anotherQuaternion.GetQ_3();
+      this.q_2 * anotherQuaternion.q_0 +
+      this.q_3 * anotherQuaternion.q_1 +
+      this.q_0 * anotherQuaternion.q_2 -
+      this.q_1 * anotherQuaternion.q_3;
     const t_3 =
-      this.q_3 * anotherQuaternion.GetQ_0() -
-      this.q_2 * anotherQuaternion.GetQ_1() +
-      this.q_1 * anotherQuaternion.GetQ_2() +
-      this.q_0 * anotherQuaternion.GetQ_3();
+      this.q_3 * anotherQuaternion.q_0 -
+      this.q_2 * anotherQuaternion.q_1 +
+      this.q_1 * anotherQuaternion.q_2 +
+      this.q_0 * anotherQuaternion.q_3;
     return RotationQuaternion.ConstructQuaternionFromAxes(t_0, t_1, t_2, t_3);
   }
 
@@ -330,4 +330,20 @@ export class RotationQuaternion {
     );
     threeObject.applyQuaternion(threeQuat);
   }
+}
+
+export function getNewObjectTransform(objectConfig, time, xQ, yQ, zQ) {
+  time *= objectConfig["v"];
+  const x = objectConfig["a"] * Math.cos(time);
+  const z = objectConfig["b"] * Math.sin(time);
+  const y = objectConfig["c"] * Math.sin(time);
+
+  const rotation = new RotationQuaternion(
+    xQ,
+    yQ,
+    zQ,
+    objectConfig["d"] * Math.PI
+  );
+
+  return [x, y, z, rotation];
 }

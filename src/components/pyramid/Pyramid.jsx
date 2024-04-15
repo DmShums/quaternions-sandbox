@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui"; // Import dat.gui
-import { RotationQuaternion } from "../../lib/QuaternionLibrary";
+import * as QuaternionLib from "../../lib/QuaternionLibrary";
+import * as Convert from "../../lib/QuaternionConvert";
 
 const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
   const containerRef = useRef(null);
@@ -56,28 +57,87 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
     pyramidRotationFolder.add(rotation, "y", 0, 360).name("Rotation Y");
     pyramidRotationFolder.add(rotation, "z", 0, 360).name("Rotation Z");
 
+    let oldX = 0;
+    let oldY = 0;
+    let oldZ = 0;
+
     const animate = () => {
       requestAnimationFrame(animate);
 
       // Apply rotation for each axis
-      const quaternionRotationX = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(1, 0, 0),
-        THREE.MathUtils.degToRad(rotation.x)
-      );
-      const quaternionRotationY = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 1, 0),
-        THREE.MathUtils.degToRad(rotation.y)
-      );
-      const quaternionRotationZ = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 0, 1),
-        THREE.MathUtils.degToRad(rotation.z)
+
+      const newX = rotation.x === oldX ? 0 : rotation.x - oldX;
+      const newY = rotation.y === oldY ? 0 : rotation.y - oldY;
+      const newZ = rotation.z === oldZ ? 0 : rotation.z - oldZ;
+
+      oldX = rotation.x;
+      oldY = rotation.y;
+      oldZ = rotation.z;
+
+      const {
+        q_0: xQ0,
+        q_1: xQ1,
+        q_2: xQ2,
+        q_3: xQ3,
+      } = Convert.convertAxisToQuaternion(
+        1,
+        0,
+        0,
+        THREE.MathUtils.degToRad(newX)
       );
 
-      const finalQuaternion = quaternionRotationX
-        .multiply(quaternionRotationY)
-        .multiply(quaternionRotationZ);
+      const {
+        q_0: yQ0,
+        q_1: yQ1,
+        q_2: yQ2,
+        q_3: yQ3,
+      } = Convert.convertAxisToQuaternion(
+        0,
+        1,
+        0,
+        THREE.MathUtils.degToRad(newY)
+      );
 
-      pyramidRef.current.setRotationFromQuaternion(finalQuaternion);
+      const {
+        q_0: zQ0,
+        q_1: zQ1,
+        q_2: zQ2,
+        q_3: zQ3,
+      } = Convert.convertAxisToQuaternion(
+        0,
+        0,
+        1,
+        THREE.MathUtils.degToRad(newZ)
+      );
+
+      const quaternionX = new QuaternionLib.RotationQuaternion(1, 1, 1, 1);
+      quaternionX.SetQ_0 = xQ0;
+      quaternionX.SetQ_1 = xQ1;
+      quaternionX.SetQ_2 = xQ2;
+      quaternionX.SetQ_3 = xQ3;
+
+      const quaternionY = new QuaternionLib.RotationQuaternion(1, 1, 1, 1);
+      quaternionY.SetQ_0 = yQ0;
+      quaternionY.SetQ_1 = yQ1;
+      quaternionY.SetQ_2 = yQ2;
+      quaternionY.SetQ_3 = yQ3;
+
+      const quaternionZ = new QuaternionLib.RotationQuaternion(1, 1, 1, 1);
+      quaternionZ.SetQ_0 = zQ0;
+      quaternionZ.SetQ_1 = zQ1;
+      quaternionZ.SetQ_2 = zQ2;
+      quaternionZ.SetQ_3 = zQ3;
+
+      //   //   const rotationQuaternion = quaternionX
+      //   //     .PreMultiply(quaternionY)
+      //   //     .PreMultiply(quaternionZ);
+
+      //   //   console.log(quaternionX);
+      quaternionX.ApplyToThreeObject(pyramidRef.current);
+
+      quaternionY.ApplyToThreeObject(pyramidRef.current);
+
+      quaternionZ.ApplyToThreeObject(pyramidRef.current);
 
       renderer.render(scene, camera);
     };

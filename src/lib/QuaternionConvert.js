@@ -111,10 +111,10 @@ export function convertEulerToQuaternion(euler) {
   const cz = Math.cos((z * Math.PI) / 180 / 2);
   const sz = Math.sin((z * Math.PI) / 180 / 2);
 
-  const w = cx * cy * cz + sx * sy * sz;
-  const quaternionX = sx * cy * cz - cx * sy * sz;
-  const quaternionY = cx * sy * cz + sx * cy * sz;
-  const quaternionZ = cx * cy * sz - sx * sy * cz;
+  const q0 = cx * cy * cz + sx * sy * sz;
+  const q1 = sx * cy * cz - cx * sy * sz;
+  const q2 = cx * sy * cz + sx * cy * sz;
+  const q3 = cx * cy * sz - sx * sy * cz;
 
-  return { quaternionX, quaternionY, quaternionZ, w };
+  return { q0, q1, q2, q3 };
 }

@@ -25,8 +25,8 @@ class Vector3 {
   }
 }
 
-class Euler {
-  constructor(x, y, z, order) {
+export class Euler {
+  constructor(x, y, z, order = "XYZ") {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -55,7 +55,7 @@ class Euler {
     this.z = newZ;
   }
   set SetOrder(newOrder) {
-    this.order = Order;
+    this.order = newOrder;
   }
 
   // .copy ( euler : Euler ) : this
