@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui"; // Import dat.gui
 import { InteractionManager } from 'three.interactive';
+import * as quatlib from "../../lib/QuaternionLibrary";
 import { cube } from "mathjs";
 
 const Cube = () => {
@@ -64,10 +65,10 @@ const Cube = () => {
       mouseDown : false,
       rotateStartPoint : new THREE.Vector3(0, 0, 1),
       rotateEndPoint : new THREE.Vector3(0, 0, 1),
-      curQuaternion : new THREE.Quaternion(),
+      curQuaternion : new quatlib.RotationQuaternion(0,0,0,0),
       windowHalfX : window.innerWidth / 2,
       windowHalfY : window.innerHeight / 2,
-      rotationSpeed : 1500,
+      rotationSpeed : 1000,
       lastMoveTimestamp : new Date(),
       moveReleaseTimeDelta : 50,
       startPoint : {
@@ -136,6 +137,7 @@ const Cube = () => {
   
     function projectOnTrackball(touchX, touchY)
     {
+      console.log(touchX,"/",touchY);
       var mouseOnBall = new THREE.Vector3();
   
       mouseOnBall.set(
@@ -159,16 +161,18 @@ const Cube = () => {
   
     function rotateMatrix(rotateStart, rotateEnd)
     {
-      var axis = new THREE.Vector3(), quaternion = new THREE.Quaternion();
+      var axis = new THREE.Vector3(), quaternion = new quatlib.RotationQuaternion(0,0,0,0);
   
       var angle = Math.acos(rotateStart.dot(rotateEnd) / rotateStart.length() / rotateEnd.length());
   
-      if (angle)
+      if(angle)
       {
         axis.crossVectors(rotateStart, rotateEnd).normalize();
         angle *= rotationStruct.current.rotationSpeed;
-        quaternion.setFromAxisAngle(axis, angle);
+
+        quaternion = new quatlib.RotationQuaternion(axis.x, axis.y, axis.z, angle);
       }
+      // console.log("New quat:", quaternion);
       return quaternion;
     }
   
@@ -182,11 +186,13 @@ const Cube = () => {
       rotationStruct.current.rotateEndPoint = projectOnTrackball(rotationStruct.current.deltaX, rotationStruct.current.deltaY);
 
       var rotateQuaternion = rotateMatrix(rotationStruct.current.rotateStartPoint, rotationStruct.current.rotateEndPoint);
-      rotationStruct.current.curQuaternion = cubeRef.current.quaternion;
-      rotationStruct.current.curQuaternion.multiplyQuaternions(rotateQuaternion, rotationStruct.current.curQuaternion);
-      rotationStruct.current.curQuaternion.normalize();
-      // cubeRef.current.setRotationFromQuaternion(rotationStruct.current.curQuaternion);
-      cubeRef.current.quaternion.copy(rotationStruct.current.curQuaternion);
+
+      rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      // rotationStruct.current.curQuaternion = quatlib.RotationQuaternion.ConstructQuaternionFromThree(cubeRef.current.quaternion);
+      // rotationStruct.current.curQuaternion.PreMultiply(rotateQuaternion);
+      // rotationStruct.current.curQuaternion = rotationStruct.current.curQuaternion.Normalized();
+      // // cubeRef.current.setRotationFromQuaternion(rotationStruct.current.curQuaternion);
+      // cubeRef.current.quaternion.copy(rotationStruct.current.curQuaternion);
 
       rotationStruct.current.rotateEndPoint = rotationStruct.current.rotateStartPoint;
     };
@@ -226,7 +232,7 @@ const Cube = () => {
     return () => {
       // Cleanup function
       renderer.dispose();
-      scene.remove(cubeRef.current); // Remove the cube mesh from the scene
+      scene.remove(cubeRef.current);
 
       scene.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
@@ -236,7 +242,7 @@ const Cube = () => {
         }
       });
 
-      gui.destroy(); // Destroy dat.gui instance
+      gui.destroy();
     };
   }, []);
 
