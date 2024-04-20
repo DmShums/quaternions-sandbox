@@ -53,11 +53,11 @@ const Cube = () => {
 
     // Create or update the cube mesh
     if (!cubeRef.current) {
-      const geometry = new THREE.BoxGeometry(3, 3, 3);
+      const geometry = new THREE.BoxGeometry(2, 2, 2);
       const material = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Change color to blue
       const cubeMesh = new THREE.Mesh(geometry, material);
 
-      cubeMesh.position.set(3, 7, 3);
+      cubeMesh.position.set(3, 10, 3);
       scene.add(cubeMesh);
 
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
@@ -85,9 +85,10 @@ const Cube = () => {
     //Test cube creation
     childrenMeshes.current = [];
 
-    scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:0, y:0, z:0}));
-    scene.add(AddCubeMesh({x:3, y:3, z:3}, {x:0, y:0, z:0}));
-    scene.add(AddCubeMesh({x:3, y:1, z:3}, {x:0, y:0, z:0}));
+    scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:5, y:45, z:0}));
+    scene.add(AddCubeMesh({x:4, y:3, z:4}, {x:15, y:15, z:0}));
+    scene.add(AddCubeMesh({x:5, y:1, z:5}, {x:45, y:5, z:0}));
+    scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:45, y:0, z:45}));
 
     console.log(childrenMeshes.current);
 
