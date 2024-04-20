@@ -228,8 +228,8 @@ const Cube = () => {
       );
 
       rotateQuaternion = rotateQuaternion.Normalized();
-      // rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      // RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
+      rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
@@ -260,17 +260,24 @@ const Cube = () => {
       const { q0, q1, q2, q3 } = Convert.convertEulerToQuaternion(euler);
 
       const rotationQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromAxes(q0, q1, q2, q3);
+      // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
 
       const rotMatrix = Convert.convertEulerToMatrix(euler);
 
-      const pos = cubeRef.current.position;
-      const customPos = new QuaternionLib.Vector3(pos.x, pos.y, pos.z); 
+      const cubeForward = new THREE.Vector3();
+      cubeRef.current.getWorldDirection(cubeForward);
+      console.log("Forward:", cubeForward);
 
-      const newPos = customPos.PreMultiplyByMatrix(rotMatrix);
-      cubeRef.current.position.set(newPos.GetX(), newPos.GetY(), newPos.GetZ());
+      const customPos = new QuaternionLib.Vector3(cubeForward.x, cubeForward.y, cubeForward.z); 
 
-      // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
+      const newForward = customPos.PreMultiplyByMatrix(rotMatrix);
+      const newThreeForward = new THREE.Vector3(newForward.GetX(), newForward.GetY(), newForward.GetZ());
+      newThreeForward.add(cubeRef.current.position);
+
+      cubeRef.current.lookAt(newThreeForward);
+
+      // cubeRef.current.position.set(newPos.GetX(), newPos.GetY(), newPos.GetZ());
 
       renderer.render(scene, camera);
     };
