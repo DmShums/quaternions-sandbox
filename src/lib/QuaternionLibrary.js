@@ -258,7 +258,7 @@ export class RotationQuaternion {
     threeObject.quaternion.copy(threeQuat);
   }
 
-  ApplyToThreeObjectAsGlobal(threeObject, parentGlobalQuaternion, parentMesh) {
+  ApplyToThreeObjectAsGlobal(threeObject, parentMesh) {
     this.ApplyToThreeObjectDirect(threeObject);
 
     if (parentMesh) {

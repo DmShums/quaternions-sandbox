@@ -87,7 +87,8 @@ const Cube = () => {
 
     scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:5, y:45, z:0}));
     scene.add(AddCubeMesh({x:4, y:3, z:4}, {x:15, y:15, z:0}));
-    scene.add(AddCubeMesh({x:5, y:1, z:5}, {x:45, y:5, z:0}));
+
+    scene.add(AddCubeMesh({x:-4, y:0, z:-4}, {x:45, y:50, z:0}));
     scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:45, y:0, z:45}));
 
     console.log(childrenMeshes.current);
@@ -230,7 +231,7 @@ const Cube = () => {
 
       rotateQuaternion = rotateQuaternion.Normalized();
       rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      RotateChildren(childrenMeshes.current, rotateQuaternion, QuaternionLib.RotationQuaternion.ConstructQuaternionFromThree(cubeRef.current.quaternion), cubeRef.current);
+      RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
@@ -248,21 +249,6 @@ const Cube = () => {
     const animate = () => {
       requestAnimationFrame(animate);
       interactionManager.update();
-
-      //TODO: implement consurrent rotation with swipe or slider
-      // Update cube rotation
-      // if(!rotationStruct.current.mouseDown)
-      // {
-      //   const quaternion = new THREE.Quaternion().setFromEuler(
-      //     new THREE.Euler(
-      //       THREE.MathUtils.degToRad(rotation.x),
-      //       THREE.MathUtils.degToRad(rotation.y),
-      //       THREE.MathUtils.degToRad(rotation.z),
-      //       "XYZ"
-      //     )
-      //   );
-      //   cubeRef.current.quaternion.copy(quaternion);
-      // }
 
       const newX = rotation.x === oldX ? 0 : rotation.x - oldX;
       const newY = rotation.y === oldY ? 0 : rotation.y - oldY;
@@ -288,6 +274,8 @@ const Cube = () => {
       rotationQuaternion.SetQ_3(q3);
 
       rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
+
       renderer.render(scene, camera);
     };
 
