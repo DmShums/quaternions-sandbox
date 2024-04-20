@@ -261,17 +261,7 @@ const Cube = () => {
       const euler = new EulerLib.Euler(newX, newY, newZ);
       const { q0, q1, q2, q3 } = Convert.convertEulerToQuaternion(euler);
 
-      const rotationQuaternion = new QuaternionLib.RotationQuaternion(
-        0,
-        0,
-        0,
-        0
-      );
-
-      rotationQuaternion.SetQ_0(q0);
-      rotationQuaternion.SetQ_1(q1);
-      rotationQuaternion.SetQ_2(q2);
-      rotationQuaternion.SetQ_3(q3);
+      const rotationQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromAxes(q0, q1, q2, q3);
 
       rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
       RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
