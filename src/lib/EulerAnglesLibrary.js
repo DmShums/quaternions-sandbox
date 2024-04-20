@@ -29,6 +29,20 @@ import * as THREE from "three";
 //   }
 // }
 
+export function ApplyStandartizedOrderRotationIntrinsic(threeMesh, euler)
+{
+  threeMesh.rotateZ((euler.GetZ() * Math.PI)/180);
+  threeMesh.rotateY((euler.GetY() * Math.PI)/180);
+  threeMesh.rotateX((euler.GetX() * Math.PI)/180);
+}
+
+export function ApplyStandartizedOrderRotationExtrinsic(threeMesh, euler)
+{
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(1,0,0), (euler.GetX() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (euler.GetY() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,0,1), (euler.GetZ() * Math.PI)/180);
+}
+
 export class Euler {
   constructor(x, y, z, order = "XYZ") {
     this.x = x;
@@ -70,16 +84,12 @@ export class Euler {
 
   ApplyToThreeObjectAsGlobal(threeObject, norm, parentMesh)
   {
-    console.log("Old matrix:" ,norm);
-
     const globPosParent = new THREE.Vector3();
     parentMesh.getWorldPosition(globPosParent);
 
     const oldMatrix = norm[0];
     const newMatrix = convertEulerToMatrix(this);
     const postionTransformationMatrix = MultiplyTwoMatrices(oldMatrix, newMatrix);
-
-    console.log("New matrix:", postionTransformationMatrix);
 
     const initNormPos = norm[1];
     const newTransformedPos = initNormPos.PreMultiplyByMatrix(postionTransformationMatrix);
@@ -91,11 +101,8 @@ export class Euler {
     );
 
     resultWorldPos.add(globPosParent);
-
-    console.log("Old child pos:", threeObject.position.toArray());
-    console.log("New child pos:", resultWorldPos);
-    console.log("<--------------------------------------------------------->");
-
+    
+    ApplyStandartizedOrderRotationExtrinsic(threeObject, this);
     norm[0] = postionTransformationMatrix;
     threeObject.position.copy(resultWorldPos);
   }

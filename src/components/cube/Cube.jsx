@@ -270,9 +270,7 @@ const Cube = () => {
       // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
 
       //Intrinsic, Z->Y->X
-      cubeRef.current.rotateZ((euler.GetZ() * Math.PI)/180);
-      cubeRef.current.rotateY((euler.GetY() * Math.PI)/180);
-      cubeRef.current.rotateX((euler.GetX() * Math.PI)/180);
+      EulerLib.ApplyStandartizedOrderRotationIntrinsic(cubeRef.current, euler);
 
       RotateChildrenEuler(childrenMeshes.current, childrenNormalizedPosition.current, euler, cubeRef.current);
 
