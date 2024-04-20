@@ -21,7 +21,8 @@ const Cube = () => {
     scene.background = new THREE.Color("#242424");
 
     const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-    camera.position.z = 10;
+    camera.rotation.copy(new THREE.Euler(-45,45,0,'YZX'));
+    camera.position.set(10, 10, 10);
 
     const axesHelper = new THREE.AxesHelper(15);
     scene.add(axesHelper);
@@ -29,9 +30,12 @@ const Cube = () => {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(w, h);
 
-    containerRef.current.appendChild(renderer.domElement);
+    const orbit = new OrbitControls(camera, renderer.domElement);
+    orbit.enablePan = false;
+    orbit.minDistance = 10;
+    orbit.maxDistance = 50;
 
-    // const orbConrols = new OrbitControls(camera, renderer.domElement);
+    containerRef.current.appendChild(renderer.domElement);
 
     // Create or update the cube mesh
     if (!cubeRef.current) {
@@ -97,6 +101,7 @@ const Cube = () => {
     }
 
     function onDocumentMouseDown(event) {
+      orbit.enableRotate = false;
       //event.preventDefault();
       cubeRef.current.addEventListener("mousemove", onDocumentMouseMove);
       cubeRef.current.addEventListener("mouseup", onDocumentMouseUp);
@@ -127,6 +132,7 @@ const Cube = () => {
     }
 
     function onDocumentMouseUp(event) {
+      orbit.enableRotate = true;
       if (
         new Date().getTime() -
           rotationStruct.current.lastMoveTimestamp.getTime() >
@@ -204,11 +210,6 @@ const Cube = () => {
       );
 
       rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      // rotationStruct.current.curQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromThree(cubeRef.current.quaternion);
-      // rotationStruct.current.curQuaternion.PreMultiply(rotateQuaternion);
-      // rotationStruct.current.curQuaternion = rotationStruct.current.curQuaternion.Normalized();
-      // // cubeRef.current.setRotationFromQuaternion(rotationStruct.current.curQuaternion);
-      // cubeRef.current.quaternion.copy(rotationStruct.current.curQuaternion);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
@@ -227,6 +228,7 @@ const Cube = () => {
       requestAnimationFrame(animate);
       interactionManager.update();
 
+      //TODO: implement consurrent rotation with swipe or slider
       // Update cube rotation
       // if(!rotationStruct.current.mouseDown)
       // {
