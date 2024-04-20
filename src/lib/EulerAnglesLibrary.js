@@ -32,29 +32,29 @@ export class Euler {
     this.z = z;
     this.order = order;
   }
-  get GetX() {
+  GetX() {
     return this.x;
   }
-  get GetY() {
+  GetY() {
     return this.y;
   }
-  get GetZ() {
+  GetZ() {
     return this.z;
   }
-  get GetOrder() {
+  GetOrder() {
     return this.order;
   }
 
-  set SetX(newX) {
+  SetX(newX) {
     this.x = newX;
   }
-  set SetY(newY) {
+  SetY(newY) {
     this.y = newY;
   }
-  set SetZ(newZ) {
+  SetZ(newZ) {
     this.z = newZ;
   }
-  set SetOrder(newOrder) {
+  SetOrder(newOrder) {
     this.order = newOrder;
   }
 

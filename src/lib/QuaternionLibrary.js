@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-class Vector3 {
+export class Vector3 {
   constructor(x, y, z) {
     this.x = x;
     this.y = y;
@@ -50,6 +50,22 @@ class Vector3 {
     const newY = this.x * otherAsSecond.GetZ() - this.z * otherAsSecond.GetX();
     const newZ = this.x * otherAsSecond.GetY() - this.y * otherAsSecond.GetX();
     return new Vector3(newX, newY, newZ);
+  }
+  
+  PreMultiplyByMatrix(matrix)
+  {
+    console.log(matrix);
+    let transformedVector = new Vector3(0,0,0);
+    let newX = matrix[0][0]*this.x + matrix[0][1]*this.y + matrix[0][2]*this.z;
+    let newY = matrix[1][0]*this.x + matrix[1][1]*this.y + matrix[1][2]*this.z;
+    let newZ = matrix[2][0]*this.x + matrix[2][1]*this.y + matrix[2][2]*this.z;
+
+    console.log(newX, newY, newZ);
+
+    transformedVector.SetX(newX);
+    transformedVector.SetY(newY);
+    transformedVector.SetZ(newZ);
+    return transformedVector;
   }
 }
 
