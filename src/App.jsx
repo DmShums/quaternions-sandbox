@@ -3,6 +3,7 @@ import "./App.css";
 import * as dat from "dat.gui"; // Import dat.gui
 
 import ComponentSelector from "./components/Selector/ComponentSelector";
+import RotationSelector from "./components/RotationSelector/RotationSelector";
 import Cube from "./components/Cube/Cube";
 import Pyramid from "./components/Pyramid/Pyramid";
 
@@ -14,6 +15,7 @@ function App() {
   const [selectedComponent, setSelectedComponent] = useState(
     localStorage.getItem("selectedComponent") || "cube"
   );
+
   const [file, setFile] = useState(null); // State to store uploaded file
   const [rotation, setRotation] = useState(
     JSON.parse(localStorage.getItem("rotation")) || { x: 0, y: 0, z: 0 }
@@ -23,6 +25,10 @@ function App() {
     const component = event.target.value;
     setSelectedComponent(component);
     localStorage.setItem("selectedComponent", component);
+  };
+
+  const handleRotationChange = (event) => {
+    localStorage.setItem("selectedRotation", event.target.value);
   };
 
   const handleFileChange = (file) => {
@@ -39,6 +45,8 @@ function App() {
         selectedComponent={selectedComponent}
         handleComponentChange={handleComponentChange}
       />
+
+      <RotationSelector handleRotationChange={handleRotationChange} />
 
       {selectedComponent === "cube" ? (
         <Cube

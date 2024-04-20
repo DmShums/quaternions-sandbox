@@ -4,6 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui"; // Import dat.gui
 import * as QuaternionLib from "../../lib/QuaternionLibrary";
 import * as Convert from "../../lib/QuaternionConvert";
+import * as EulerLib from "../../lib/EulerAnglesLibrary";
 
 const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
   const containerRef = useRef(null);
@@ -23,8 +24,8 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(w, h);
 
-    const axesHelper = new THREE.AxesHelper(15);
-    scene.add(axesHelper);
+    const gridHelper = new THREE.GridHelper(100, 10);
+    scene.add(gridHelper);
 
     containerRef.current.appendChild(renderer.domElement);
 
@@ -36,13 +37,13 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
     const geometry = new THREE.CylinderGeometry(0, radius, height, 4, 1);
     const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
     const pyramidMesh = new THREE.Mesh(geometry, material);
-    pyramidMesh.position.x += 1;
-    pyramidMesh.position.y += 1;
-    pyramidMesh.position.z += 1;
+    pyramidMesh.position.y += 2;
 
     scene.add(pyramidMesh);
+    const pyramidAxesHelper = new THREE.AxesHelper(3);
 
     pyramidRef.current = pyramidMesh; // Store a reference to the pyramid mesh
+    pyramidRef.current.add(pyramidAxesHelper);
 
     const light = new THREE.HemisphereLight("#FFFFFF", "#757575", 1.7);
     scene.add(light);
@@ -51,11 +52,11 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
     const gui = new dat.GUI();
     guiRef.current = gui;
 
-    const rotation = { x: rotationX, y: rotationY, z: rotationZ };
+    const rotationObj = { x: rotationX, y: rotationY, z: rotationZ };
     const pyramidRotationFolder = gui.addFolder("Pyramid Rotation");
-    pyramidRotationFolder.add(rotation, "x", 0, 360).name("Rotation X");
-    pyramidRotationFolder.add(rotation, "y", 0, 360).name("Rotation Y");
-    pyramidRotationFolder.add(rotation, "z", 0, 360).name("Rotation Z");
+    pyramidRotationFolder.add(rotationObj, "x", 0, 360).name("Rotation X");
+    pyramidRotationFolder.add(rotationObj, "y", 0, 360).name("Rotation Y");
+    pyramidRotationFolder.add(rotationObj, "z", 0, 360).name("Rotation Z");
 
     let oldX = 0;
     let oldY = 0;
@@ -70,18 +71,14 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
       return quaternion;
     }
 
-    const animate = () => {
-      requestAnimationFrame(animate);
+    function rotateWithQuaternion() {
+      const newX = rotationObj.x === oldX ? 0 : rotationObj.x - oldX;
+      const newY = rotationObj.y === oldY ? 0 : rotationObj.y - oldY;
+      const newZ = rotationObj.z === oldZ ? 0 : rotationObj.z - oldZ;
 
-      // Apply rotation for each axis
-
-      const newX = rotation.x === oldX ? 0 : rotation.x - oldX;
-      const newY = rotation.y === oldY ? 0 : rotation.y - oldY;
-      const newZ = rotation.z === oldZ ? 0 : rotation.z - oldZ;
-
-      oldX = rotation.x;
-      oldY = rotation.y;
-      oldZ = rotation.z;
+      oldX = rotationObj.x;
+      oldY = rotationObj.y;
+      oldZ = rotationObj.z;
 
       const {
         q_0: xQ0,
@@ -124,10 +121,36 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
       const quaternionZ = createQuaternion(zQ0, zQ1, zQ2, zQ3);
 
       const rotationQuaternion = quaternionX
-        .PreMultiply(quaternionY)
-        .PreMultiply(quaternionZ);
+        .PostMultiplyThisAsFirst(quaternionY)
+        .PostMultiplyThisAsFirst(quaternionZ);
 
       rotationQuaternion.ApplyToThreeObjectDirect(pyramidRef.current);
+    }
+
+    function rotateWithEuler() {
+      oldX = rotationObj.x;
+      oldY = rotationObj.y;
+      oldZ = rotationObj.z;
+
+      const newEuler = new EulerLib.Euler(
+        THREE.MathUtils.degToRad(rotationObj.x),
+        THREE.MathUtils.degToRad(rotationObj.y),
+        THREE.MathUtils.degToRad(rotationObj.z),
+        "XZY"
+      );
+      newEuler.applyRotationToObject(pyramidRef.current);
+    }
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+
+      // Apply rotation for each axis
+      let typeOfRotation = localStorage.getItem("selectedRotation");
+      if (typeOfRotation == "quaternion") {
+        rotateWithQuaternion();
+      } else {
+        rotateWithEuler();
+      }
 
       renderer.render(scene, camera);
     };
