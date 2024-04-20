@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui";
 import * as QuaternionLib from "../../lib/QuaternionLibrary";
-import {RotateChildren} from "../../lib/RotationLogic"
+import {RotateChildren, RotateChildrenEuler} from "../../lib/RotationLogic"
 import * as Convert from "../../lib/QuaternionConvert";
 import * as EulerLib from "../../lib/EulerAnglesLibrary";
 import { InteractionManager } from "three.interactive";
@@ -13,6 +13,7 @@ const Cube = () => {
   const containerRef = useRef(null);
   const cubeRef = useRef(null);
   const childrenMeshes = useRef(null);
+  const childrenNormalizedPosition = useRef(null);
   const rotationStruct = useRef(null);
 
   function AddCubeMesh(position, rotation)
@@ -23,7 +24,11 @@ const Cube = () => {
     cubeMesh.position.set(position.x, position.y, position.z);
     cubeMesh.rotation.set(rotation.x, rotation.y, rotation.y);
 
+    const initNormPosition = cubeMesh.position;
+    initNormPosition.sub(cubeRef.current.position);
+
     childrenMeshes.current.push(cubeMesh);
+    childrenNormalizedPosition.current.push([Convert.convertEulerToMatrix(new EulerLib.Euler(0,0,0)), new QuaternionLib.Vector3(initNormPosition.x, initNormPosition.y, initNormPosition.z)]);
     return cubeMesh;
   }
 
@@ -84,6 +89,7 @@ const Cube = () => {
     let oldZ = 0;
     //Test cube creation
     childrenMeshes.current = [];
+    childrenNormalizedPosition.current = [];
 
     scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:5, y:45, z:0}));
     scene.add(AddCubeMesh({x:4, y:3, z:4}, {x:15, y:15, z:0}));
@@ -267,6 +273,8 @@ const Cube = () => {
       cubeRef.current.rotateZ((euler.GetZ() * Math.PI)/180);
       cubeRef.current.rotateY((euler.GetY() * Math.PI)/180);
       cubeRef.current.rotateX((euler.GetX() * Math.PI)/180);
+
+      RotateChildrenEuler(childrenMeshes.current, childrenNormalizedPosition.current, euler, cubeRef.current);
 
       renderer.render(scene, camera);
     };
