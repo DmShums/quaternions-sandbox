@@ -51,7 +51,7 @@ export class Vector3 {
     const newZ = this.x * otherAsSecond.GetY() - this.y * otherAsSecond.GetX();
     return new Vector3(newX, newY, newZ);
   }
-  
+
   PreMultiplyByMatrix(matrix)
   {
     console.log(matrix);
@@ -60,7 +60,8 @@ export class Vector3 {
     let newY = matrix[1][0]*this.x + matrix[1][1]*this.y + matrix[1][2]*this.z;
     let newZ = matrix[2][0]*this.x + matrix[2][1]*this.y + matrix[2][2]*this.z;
 
-    console.log(newX, newY, newZ);
+    console.log("X:",newX,"; Y:", newY,"; Z:", newZ);
+    console.log("--------------------------------------------");
 
     transformedVector.SetX(newX);
     transformedVector.SetY(newY);

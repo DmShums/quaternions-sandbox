@@ -91,8 +91,6 @@ const Cube = () => {
     scene.add(AddCubeMesh({x:-4, y:0, z:-4}, {x:45, y:50, z:0}));
     scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:45, y:0, z:45}));
 
-    console.log(childrenMeshes.current);
-
     //Swipe rotation code
     const cubeRotationStruct = {
       mouseDown: false,
@@ -230,8 +228,8 @@ const Cube = () => {
       );
 
       rotateQuaternion = rotateQuaternion.Normalized();
-      rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
+      // rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      // RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
@@ -264,11 +262,13 @@ const Cube = () => {
       const rotationQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromAxes(q0, q1, q2, q3);
 
       const rotMatrix = Convert.convertEulerToMatrix(euler);
-      console.log(rotMatrix);
-      const customPos = new QuaternionLib.Vector3(cubeRef.current.position.x,cubeRef.current.position.y,cubeRef.current.position.z); 
+
+      const pos = cubeRef.current.position;
+      const customPos = new QuaternionLib.Vector3(pos.x, pos.y, pos.z); 
+
       const newPos = customPos.PreMultiplyByMatrix(rotMatrix);
-      cubeRef.current.position.set(new THREE.Vector3(newPos.GetX(), newPos.GetY(), newPos.GetZ()));
-      
+      cubeRef.current.position.set(newPos.GetX(), newPos.GetY(), newPos.GetZ());
+
       // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
       // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
 
