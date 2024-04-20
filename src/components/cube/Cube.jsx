@@ -257,14 +257,19 @@ const Cube = () => {
       oldX = rotation.x;
       oldY = rotation.y;
       oldZ = rotation.z;
-
       const euler = new EulerLib.Euler(newX, newY, newZ);
+
       const { q0, q1, q2, q3 } = Convert.convertEulerToQuaternion(euler);
 
       const rotationQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromAxes(q0, q1, q2, q3);
-
-      rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
+       
+      const rotMatrix = Convert.convertEulerToMatrix(euler);
+      console.log(rotMatrix);
+      const customPos = new QuaternionLib.Vector3(cubeRef.current.position.x,cubeRef.current.position.y,cubeRef.current.position.z); 
+      const newPos = customPos.PreMultiplyByMatrix(rotMatrix);
+      cubeRef.current.position.set(new THREE.Vector3(newPos.GetX(), newPos.GetY(), newPos.GetZ()));
+      // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
 
       renderer.render(scene, camera);
     };
