@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui";
 import * as QuaternionLib from "../../lib/QuaternionLibrary";
+import {RotateChildren} from "../../lib/RotationLogic"
 import * as Convert from "../../lib/QuaternionConvert";
 import * as EulerLib from "../../lib/EulerAnglesLibrary";
 import { InteractionManager } from "three.interactive";
@@ -10,8 +11,21 @@ import { cube } from "mathjs";
 
 const Cube = () => {
   const containerRef = useRef(null);
-  const cubeRef = useRef(null); // Reference to the cube mesh
+  const cubeRef = useRef(null);
+  const childrenMeshes = useRef(null);
   const rotationStruct = useRef(null);
+
+  function AddCubeMesh(position, rotation)
+  {
+    const geometry = new THREE.BoxGeometry(2,2,2);
+    const material = new THREE.MeshPhongMaterial({ color: 0xaeb0ff });
+    const cubeMesh = new THREE.Mesh(geometry, material);
+    cubeMesh.position.set(position.x, position.y, position.z);
+    cubeMesh.rotation.set(rotation.x, rotation.y, rotation.y);
+
+    childrenMeshes.current.push(cubeMesh);
+    return cubeMesh;
+  }
 
   useEffect(() => {
     const w = window.innerWidth;
@@ -21,7 +35,8 @@ const Cube = () => {
     scene.background = new THREE.Color("#242424");
 
     const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-    camera.position.z = 10;
+    camera.rotation.copy(new THREE.Euler(-45,45,0,'YZX'));
+    camera.position.set(10, 10, 10);
 
     const axesHelper = new THREE.AxesHelper(15);
     scene.add(axesHelper);
@@ -29,23 +44,25 @@ const Cube = () => {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(w, h);
 
-    containerRef.current.appendChild(renderer.domElement);
+    const orbit = new OrbitControls(camera, renderer.domElement);
+    orbit.enablePan = false;
+    orbit.minDistance = 20;
+    orbit.maxDistance = 50;
 
-    // const orbConrols = new OrbitControls(camera, renderer.domElement);
+    containerRef.current.appendChild(renderer.domElement);
 
     // Create or update the cube mesh
     if (!cubeRef.current) {
-      const geometry = new THREE.BoxGeometry(3, 3, 3);
+      const geometry = new THREE.BoxGeometry(2, 2, 2);
       const material = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Change color to blue
       const cubeMesh = new THREE.Mesh(geometry, material);
+
+      cubeMesh.position.set(3, 10, 3);
       scene.add(cubeMesh);
 
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
     }
 
-    cubeRef.current.position.x += 1;
-    cubeRef.current.position.y += 1;
-    cubeRef.current.position.z += 1;
     // Add lights to the scene
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
@@ -65,6 +82,17 @@ const Cube = () => {
     let oldX = 0;
     let oldY = 0;
     let oldZ = 0;
+    //Test cube creation
+    childrenMeshes.current = [];
+
+    scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:5, y:45, z:0}));
+    scene.add(AddCubeMesh({x:4, y:3, z:4}, {x:15, y:15, z:0}));
+
+    scene.add(AddCubeMesh({x:-4, y:0, z:-4}, {x:45, y:50, z:0}));
+    scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:45, y:0, z:45}));
+
+    console.log(childrenMeshes.current);
+
     //Swipe rotation code
     const cubeRotationStruct = {
       mouseDown: false,
@@ -97,7 +125,7 @@ const Cube = () => {
     }
 
     function onDocumentMouseDown(event) {
-      //event.preventDefault();
+      orbit.enableRotate = false;
       cubeRef.current.addEventListener("mousemove", onDocumentMouseMove);
       cubeRef.current.addEventListener("mouseup", onDocumentMouseUp);
 
@@ -108,8 +136,7 @@ const Cube = () => {
         y: event.coords.y,
       };
 
-      rotationStruct.current.rotateStartPoint =
-        rotationStruct.current.rotateEndPoint = projectOnTrackball(0, 0);
+      rotationStruct.current.rotateStartPoint = rotationStruct.current.rotateEndPoint = projectOnTrackball(0, 0);
     }
 
     function onDocumentMouseMove(event) {
@@ -127,6 +154,7 @@ const Cube = () => {
     }
 
     function onDocumentMouseUp(event) {
+      orbit.enableRotate = true;
       if (
         new Date().getTime() -
           rotationStruct.current.lastMoveTimestamp.getTime() >
@@ -145,7 +173,6 @@ const Cube = () => {
     }
 
     function projectOnTrackball(touchX, touchY) {
-      console.log(touchX, "/", touchY);
       var mouseOnBall = new THREE.Vector3();
 
       mouseOnBall.set(
@@ -184,7 +211,6 @@ const Cube = () => {
           angle
         );
       }
-      // console.log("New quat:", quaternion);
       return quaternion;
     }
 
@@ -203,12 +229,9 @@ const Cube = () => {
         rotationStruct.current.rotateEndPoint
       );
 
+      rotateQuaternion = rotateQuaternion.Normalized();
       rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      // rotationStruct.current.curQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromThree(cubeRef.current.quaternion);
-      // rotationStruct.current.curQuaternion.PreMultiply(rotateQuaternion);
-      // rotationStruct.current.curQuaternion = rotationStruct.current.curQuaternion.Normalized();
-      // // cubeRef.current.setRotationFromQuaternion(rotationStruct.current.curQuaternion);
-      // cubeRef.current.quaternion.copy(rotationStruct.current.curQuaternion);
+      RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
@@ -226,20 +249,6 @@ const Cube = () => {
     const animate = () => {
       requestAnimationFrame(animate);
       interactionManager.update();
-
-      // Update cube rotation
-      // if(!rotationStruct.current.mouseDown)
-      // {
-      //   const quaternion = new THREE.Quaternion().setFromEuler(
-      //     new THREE.Euler(
-      //       THREE.MathUtils.degToRad(rotation.x),
-      //       THREE.MathUtils.degToRad(rotation.y),
-      //       THREE.MathUtils.degToRad(rotation.z),
-      //       "XYZ"
-      //     )
-      //   );
-      //   cubeRef.current.quaternion.copy(quaternion);
-      // }
 
       const newX = rotation.x === oldX ? 0 : rotation.x - oldX;
       const newY = rotation.y === oldY ? 0 : rotation.y - oldY;
@@ -265,6 +274,8 @@ const Cube = () => {
       rotationQuaternion.SetQ_3(q3);
 
       rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
+
       renderer.render(scene, camera);
     };
 

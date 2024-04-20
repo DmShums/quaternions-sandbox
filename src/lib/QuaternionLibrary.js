@@ -35,6 +35,12 @@ class Vector3 {
     );
   }
 
+  Length()
+  {
+    let len = Math.sqrt(this.x*this.x + this.y*this.y + this.z * this.z);
+    return len;
+  }
+
   MultScalar(scalar) {
     return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar);
   }
@@ -85,10 +91,10 @@ export class RotationQuaternion {
 
   static ConstructQuaternionFromThree(threeQuat) {
     return this.ConstructQuaternionFromAxes(
+      threeQuat.w,
       threeQuat.x,
       threeQuat.y,
-      threeQuat.z,
-      threeQuat.w
+      threeQuat.z
     );
   }
 
@@ -118,7 +124,7 @@ export class RotationQuaternion {
     this.q_3 = newq_3;
   }
 
-  PostMultiply(anotherQuaternion) {
+  PostMultiplyThisAsFirst(anotherQuaternion) {
     const t_0 =
       this.q_0 * anotherQuaternion.GetQ_0() -
       this.q_1 * anotherQuaternion.GetQ_1() -
@@ -126,28 +132,29 @@ export class RotationQuaternion {
       this.q_3 * anotherQuaternion.GetQ_3();
     const t_1 =
       this.q_0 * anotherQuaternion.GetQ_1() +
-      this.q_1 * anotherQuaternion.GetQ_0() -
-      this.q_2 * anotherQuaternion.GetQ_3() +
-      this.q_3 * anotherQuaternion.GetQ_2();
+      this.q_1 * anotherQuaternion.GetQ_0() +
+      this.q_2 * anotherQuaternion.GetQ_3() -
+      this.q_3 * anotherQuaternion.GetQ_2() ;
     const t_2 =
-      this.q_0 * anotherQuaternion.GetQ_2() +
+      this.q_0 * anotherQuaternion.GetQ_2() -
       this.q_1 * anotherQuaternion.GetQ_3() +
-      this.q_2 * anotherQuaternion.GetQ_0() -
-      this.q_3 * anotherQuaternion.GetQ_1();
+      this.q_3 * anotherQuaternion.GetQ_1() +
+      this.q_2 * anotherQuaternion.GetQ_0() ;
     const t_3 =
       this.q_0 * anotherQuaternion.GetQ_3() -
-      this.q_1 * anotherQuaternion.GetQ_2() +
       this.q_2 * anotherQuaternion.GetQ_1() +
+      this.q_1 * anotherQuaternion.GetQ_2() +
       this.q_3 * anotherQuaternion.GetQ_0();
+
     return RotationQuaternion.ConstructQuaternionFromAxes(
       t_0,
       t_1,
       t_2,
       t_3
-    ).Normalized();
+    );  
   }
 
-  PreMultiply(anotherQuaternion) {
+  PreMultiplyThisAsSecond(anotherQuaternion) {
     const t_0 =
       this.q_0 * anotherQuaternion.GetQ_0() -
       this.q_1 * anotherQuaternion.GetQ_1() -
@@ -155,35 +162,25 @@ export class RotationQuaternion {
       this.q_3 * anotherQuaternion.GetQ_3();
     const t_1 =
       this.q_1 * anotherQuaternion.GetQ_0() +
-      this.q_0 * anotherQuaternion.GetQ_1() -
-      this.q_3 * anotherQuaternion.GetQ_2() +
-      this.q_2 * anotherQuaternion.GetQ_3();
+      this.q_0 * anotherQuaternion.GetQ_1() +
+      this.q_3 * anotherQuaternion.GetQ_2() -
+      this.q_2 * anotherQuaternion.GetQ_3() ;
     const t_2 =
-      this.q_2 * anotherQuaternion.GetQ_0() +
+      this.q_2 * anotherQuaternion.GetQ_0() -
       this.q_3 * anotherQuaternion.GetQ_1() +
-      this.q_0 * anotherQuaternion.GetQ_2() -
-      this.q_1 * anotherQuaternion.GetQ_3();
+      this.q_1 * anotherQuaternion.GetQ_3() +
+      this.q_0 * anotherQuaternion.GetQ_2() ;
     const t_3 =
       this.q_3 * anotherQuaternion.GetQ_0() -
-      this.q_2 * anotherQuaternion.GetQ_1() +
       this.q_1 * anotherQuaternion.GetQ_2() +
+      this.q_2 * anotherQuaternion.GetQ_1() +
       this.q_0 * anotherQuaternion.GetQ_3();
-    // const p_s = anotherQuaternion.GetQ_3();
-    // const p_v = new Vector3(anotherQuaternion.GetQ_0(), anotherQuaternion.GetQ_1(), anotherQuaternion.GetQ_2());
-
-    // const q_s = this.q_3;
-    // const q_v = new Vector3(this.q_0, this.q_1, this.q_2, this.q_3);
-
-    // const scalarPart = p_s*q_s - DotProduct(p_v, q_v);
-    // const vectorPart = p_v.CrossProductAsFirst(q_v).AddAnother(p_v.MultScalar(q_s)).AddAnother(q_v.MultScalar(p_s));
-
-    // return RotationQuaternion.ConstructQuaternionFromAxes(vectorPart.GetX(), vectorPart.GetY(), vectorPart.GetZ(), scalarPart).Normalized();
     return RotationQuaternion.ConstructQuaternionFromAxes(
       t_0,
       t_1,
       t_2,
       t_3
-    ).Normalized();
+    );
   }
 
   GetInverse() {
@@ -223,7 +220,7 @@ export class RotationQuaternion {
       vectorToRotate.GetZ()
     );
     const inverseQuat = this.GetInverse();
-    const result = inverseQuat.PostMultiply(vectorAsQuat).PostMultiply(this);
+    const result = inverseQuat.PostMultiplyThisAsFirst(vectorAsQuat).PostMultiplyThisAsFirst(this);
 
     return new Vector3(result.GetQ_1(), result.GetQ_2(), result.GetQ_3());
   }
@@ -236,101 +233,53 @@ export class RotationQuaternion {
       vectorToRotate.GetZ()
     );
     const inverseQuat = this.GetInverse();
-    const result = this.PostMultiply(vectorAsQuat).PostMultiply(inverseQuat);
+    const result = this.PostMultiplyThisAsFirst(vectorAsQuat).PostMultiplyThisAsFirst(inverseQuat);
 
     return new Vector3(result.GetQ_1(), result.GetQ_2(), result.GetQ_3());
   }
 
   ApplyToThreeObjectDirect(threeObject) {
-    let objQuat = threeObject.quaternion;
-    let customObjQuat = RotationQuaternion.ConstructQuaternionFromAxes(
-      objQuat.x,
-      objQuat.y,
-      objQuat.z,
-      objQuat.w
-    ).Normalized();
+    let objQuat = new THREE.Quaternion();
+    threeObject.getWorldQuaternion(objQuat);
 
-    let resultQuat = customObjQuat.PreMultiply(this);
+    let customObjQuat = RotationQuaternion.ConstructQuaternionFromThree(objQuat).Normalized();
+
+    let resultQuat = this.PostMultiplyThisAsFirst(customObjQuat);
+
     const threeQuat = new THREE.Quaternion(
-      resultQuat.GetQ_0(),
       resultQuat.GetQ_1(),
       resultQuat.GetQ_2(),
-      resultQuat.GetQ_3()
+      resultQuat.GetQ_3(),
+      resultQuat.GetQ_0()
     );
+
+    threeQuat.normalize();
 
     threeObject.quaternion.copy(threeQuat);
   }
 
-  ApplyToThreeObjectAsGlobal(threeObject, parentGlobalQuaternion, parentMesh) {
-    let objQuat = threeObject.quaternion;
-    let customObjQuat = RotationQuaternion.ConstructQuaternionFromAxes(
-      objQuat.x,
-      objQuat.y,
-      objQuat.z,
-      objQuat.w
-    );
-
-    let resultQuat = customObjQuat
-      .PreMultiply(this)
-      .PreMultiply(parentGlobalQuaternion)
-      .Normalized();
-    const threeQuat = new THREE.Quaternion(
-      resultQuat.GetQ_0(),
-      resultQuat.GetQ_1(),
-      resultQuat.GetQ_2(),
-      resultQuat.GetQ_3()
-    );
-    threeObject.quaternion.copy(threeQuat);
+  ApplyToThreeObjectAsGlobal(threeObject, parentMesh) {
+    this.ApplyToThreeObjectDirect(threeObject);
 
     if (parentMesh) {
-      const localPos = parentMesh.worldToLocal(threeObject.position);
-      const customLocalPos = new Vector3(localPos.x, localPos.y, localPos.z);
-      const transformedCustomLocalPos = this.RotateVectorActive(customLocalPos);
-      const resultWorldPos = parentMesh.localToWorld(
-        THREE.Vector3(
-          transformedCustomLocalPos.GetX(),
-          transformedCustomLocalPos.GetY(),
-          transformedCustomLocalPos.GetZ()
-        )
+      const globPosChild = new THREE.Vector3();
+      threeObject.getWorldPosition(globPosChild);
+
+      const globPosParent = new THREE.Vector3();
+      parentMesh.getWorldPosition(globPosParent);
+
+      globPosChild.sub(globPosParent);
+
+      const customLocalPos = new Vector3(globPosChild.x, globPosChild.y, globPosChild.z);
+      const transformedCustomLocalPos = this.RotateVectorPassive(customLocalPos);
+      const resultWorldPos = new THREE.Vector3(
+        transformedCustomLocalPos.GetX(),
+        transformedCustomLocalPos.GetY(),
+        transformedCustomLocalPos.GetZ()
       );
 
-      threeObject.position.copy(resultWorldPos);
-    }
-  }
-
-  ApplyToThreeObjectAsLocal(threeObject, parentGlobalQuaternion, parentMesh) {
-    let objQuat = threeObject.quaternion;
-    let customObjQuat = RotationQuaternion.ConstructQuaternionFromAxes(
-      objQuat.x,
-      objQuat.y,
-      objQuat.z,
-      objQuat.w
-    ).Normalized();
-
-    let resultQuat = customObjQuat
-      .PreMultiply(parentGlobalQuaternion.GetInverse())
-      .PreMultiply(this)
-      .PreMultiply(parentGlobalQuaternion)
-      .Normalized();
-    const threeQuat = new THREE.Quaternion(
-      resultQuat.GetQ_0,
-      resultQuat.GetQ_1,
-      resultQuat.GetQ_2,
-      resultQuat.GetQ_3
-    );
-    threeObject.quaternion.copy(threeQuat);
-
-    if (parentMesh) {
-      const localPos = parentMesh.worldToLocal(threeObject.position);
-      const customLocalPos = new Vector3(localPos.x, localPos.y, localPos.z);
-      const transformedCustomLocalPos = this.RotateVectorActive(customLocalPos);
-      const resultWorldPos = parentMesh.localToWorld(
-        THREE.Vector3(
-          transformedCustomLocalPos.GetX(),
-          transformedCustomLocalPos.GetY(),
-          transformedCustomLocalPos.GetZ()
-        )
-      );
+      resultWorldPos.add(globPosParent);
+      console.log(globPosParent.distanceTo(resultWorldPos));
 
       threeObject.position.copy(resultWorldPos);
     }
