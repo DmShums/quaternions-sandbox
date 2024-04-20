@@ -263,21 +263,10 @@ const Cube = () => {
       // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
       // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
 
-      const rotMatrix = Convert.convertEulerToMatrix(euler);
-
-      const cubeForward = new THREE.Vector3();
-      cubeRef.current.getWorldDirection(cubeForward);
-      console.log("Forward:", cubeForward);
-
-      const customPos = new QuaternionLib.Vector3(cubeForward.x, cubeForward.y, cubeForward.z); 
-
-      const newForward = customPos.PreMultiplyByMatrix(rotMatrix);
-      const newThreeForward = new THREE.Vector3(newForward.GetX(), newForward.GetY(), newForward.GetZ());
-      newThreeForward.add(cubeRef.current.position);
-
-      cubeRef.current.lookAt(newThreeForward);
-
-      // cubeRef.current.position.set(newPos.GetX(), newPos.GetY(), newPos.GetZ());
+      //Intrinsic, Z->Y->X
+      cubeRef.current.rotateZ((euler.GetZ() * Math.PI)/180);
+      cubeRef.current.rotateY((euler.GetY() * Math.PI)/180);
+      cubeRef.current.rotateX((euler.GetX() * Math.PI)/180);
 
       renderer.render(scene, camera);
     };
