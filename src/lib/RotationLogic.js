@@ -2,7 +2,7 @@
 //propagate euler to children as matrix
 import * as quatlib from "./QuaternionLibrary";
 
-function RotateChildren(childrenMeshesToRotate, rotationQuaternion, parentGlobalQuaternion, parentMesh)
+export function RotateChildren(childrenMeshesToRotate, rotationQuaternion, parentGlobalQuaternion, parentMesh)
 {
     for(let mesh of childrenMeshesToRotate)
     {

@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui";
 import * as QuaternionLib from "../../lib/QuaternionLibrary";
+import {RotateChildren} from "../../lib/RotationLogic"
 import * as Convert from "../../lib/QuaternionConvert";
 import * as EulerLib from "../../lib/EulerAnglesLibrary";
 import { InteractionManager } from "three.interactive";
@@ -10,8 +11,21 @@ import { cube } from "mathjs";
 
 const Cube = () => {
   const containerRef = useRef(null);
-  const cubeRef = useRef(null); // Reference to the cube mesh
+  const cubeRef = useRef(null);
+  const childrenMeshes = useRef(null);
   const rotationStruct = useRef(null);
+
+  function AddCubeMesh(position, rotation)
+  {
+    const geometry = new THREE.BoxGeometry(2,2,2);
+    const material = new THREE.MeshPhongMaterial({ color: 0xaeb0ff });
+    const cubeMesh = new THREE.Mesh(geometry, material);
+    cubeMesh.position.set(position.x, position.y, position.z);
+    cubeMesh.rotation.set(rotation.x, rotation.y, rotation.y);
+
+    childrenMeshes.current.push(cubeMesh);
+    return cubeMesh;
+  }
 
   useEffect(() => {
     const w = window.innerWidth;
@@ -42,14 +56,13 @@ const Cube = () => {
       const geometry = new THREE.BoxGeometry(3, 3, 3);
       const material = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Change color to blue
       const cubeMesh = new THREE.Mesh(geometry, material);
+
+      cubeMesh.position.set(1, -5, 3);
       scene.add(cubeMesh);
 
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
     }
 
-    cubeRef.current.position.x += 1;
-    cubeRef.current.position.y += 1;
-    cubeRef.current.position.z += 1;
     // Add lights to the scene
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
@@ -69,6 +82,15 @@ const Cube = () => {
     let oldX = 0;
     let oldY = 0;
     let oldZ = 0;
+    //Test cube creation
+    childrenMeshes.current = [];
+
+    scene.add(AddCubeMesh({x:5, y:1, z:4}, {x:13, y:-10, z:20}));
+    scene.add(AddCubeMesh({x:7, y:1, z:5}, {x:3, y:10, z:10}));
+    scene.add(AddCubeMesh({x:6, y:1, z:3}, {x:-5, y:1, z:-20}));
+
+    console.log(childrenMeshes.current);
+
     //Swipe rotation code
     const cubeRotationStruct = {
       mouseDown: false,
@@ -102,7 +124,6 @@ const Cube = () => {
 
     function onDocumentMouseDown(event) {
       orbit.enableRotate = false;
-      //event.preventDefault();
       cubeRef.current.addEventListener("mousemove", onDocumentMouseMove);
       cubeRef.current.addEventListener("mouseup", onDocumentMouseUp);
 
@@ -113,8 +134,7 @@ const Cube = () => {
         y: event.coords.y,
       };
 
-      rotationStruct.current.rotateStartPoint =
-        rotationStruct.current.rotateEndPoint = projectOnTrackball(0, 0);
+      rotationStruct.current.rotateStartPoint = rotationStruct.current.rotateEndPoint = projectOnTrackball(0, 0);
     }
 
     function onDocumentMouseMove(event) {
@@ -151,7 +171,6 @@ const Cube = () => {
     }
 
     function projectOnTrackball(touchX, touchY) {
-      console.log(touchX, "/", touchY);
       var mouseOnBall = new THREE.Vector3();
 
       mouseOnBall.set(
@@ -190,7 +209,6 @@ const Cube = () => {
           angle
         );
       }
-      // console.log("New quat:", quaternion);
       return quaternion;
     }
 
@@ -210,6 +228,7 @@ const Cube = () => {
       );
 
       rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      RotateChildren(childrenMeshes.current, rotateQuaternion, QuaternionLib.RotationQuaternion.ConstructQuaternionFromThree(cubeRef.current.quaternion), cubeRef.current);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
