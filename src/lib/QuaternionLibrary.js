@@ -91,10 +91,10 @@ export class RotationQuaternion {
 
   static ConstructQuaternionFromThree(threeQuat) {
     return this.ConstructQuaternionFromAxes(
+      threeQuat.w,
       threeQuat.x,
       threeQuat.y,
-      threeQuat.z,
-      threeQuat.w
+      threeQuat.z
     );
   }
 
@@ -239,21 +239,21 @@ export class RotationQuaternion {
   }
 
   ApplyToThreeObjectDirect(threeObject) {
-    let objQuat = threeObject.quaternion;
-    let customObjQuat = RotationQuaternion.ConstructQuaternionFromAxes(
-      objQuat.x,
-      objQuat.y,
-      objQuat.z,
-      objQuat.w
-    ).Normalized();
+    let objQuat = new THREE.Quaternion();
+    threeObject.getWorldQuaternion(objQuat);
 
-    let resultQuat = customObjQuat.PreMultiplyThisAsSecond(this);
+    let customObjQuat = RotationQuaternion.ConstructQuaternionFromThree(objQuat).Normalized();
+
+    let resultQuat = this.PostMultiplyThisAsFirst(customObjQuat);
+
     const threeQuat = new THREE.Quaternion(
-      resultQuat.GetQ_0(),
       resultQuat.GetQ_1(),
       resultQuat.GetQ_2(),
-      resultQuat.GetQ_3()
+      resultQuat.GetQ_3(),
+      resultQuat.GetQ_0()
     );
+
+    threeQuat.normalize();
 
     threeObject.quaternion.copy(threeQuat);
   }
@@ -280,21 +280,24 @@ export class RotationQuaternion {
     // threeObject.quaternion.copy(threeQuat);
 
     if (parentMesh) {
-      const globPos = new THREE.Vector3();
-      threeObject.getWorldPosition(globPos);
-      const localPos = parentMesh.worldToLocal(globPos);
+      const globPosChild = new THREE.Vector3();
+      threeObject.getWorldPosition(globPosChild);
 
-      const customLocalPos = new Vector3(localPos.x, localPos.y, localPos.z);
+      const globPosParent = new THREE.Vector3();
+      parentMesh.getWorldPosition(globPosParent);
+
+      globPosChild.sub(globPosParent);
+
+      const customLocalPos = new Vector3(globPosChild.x, globPosChild.y, globPosChild.z);
       const transformedCustomLocalPos = this.RotateVectorPassive(customLocalPos);
-      const resultWorldPos = parentMesh.localToWorld(
-        new THREE.Vector3(
-          transformedCustomLocalPos.GetX(),
-          transformedCustomLocalPos.GetY(),
-          transformedCustomLocalPos.GetZ()
-        )
+      const resultWorldPos = new THREE.Vector3(
+        transformedCustomLocalPos.GetX(),
+        transformedCustomLocalPos.GetY(),
+        transformedCustomLocalPos.GetZ()
       );
 
-      console.log(parentMesh.position.distanceTo(resultWorldPos));
+      resultWorldPos.add(globPosParent);
+      console.log(globPosParent.distanceTo(resultWorldPos));
 
       threeObject.position.copy(resultWorldPos);
     }

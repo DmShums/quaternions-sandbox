@@ -46,7 +46,7 @@ const Cube = () => {
 
     const orbit = new OrbitControls(camera, renderer.domElement);
     orbit.enablePan = false;
-    orbit.minDistance = 10;
+    orbit.minDistance = 20;
     orbit.maxDistance = 50;
 
     containerRef.current.appendChild(renderer.domElement);
@@ -57,7 +57,7 @@ const Cube = () => {
       const material = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Change color to blue
       const cubeMesh = new THREE.Mesh(geometry, material);
 
-      cubeMesh.position.set(1, -5, 3);
+      cubeMesh.position.set(3, 7, 3);
       scene.add(cubeMesh);
 
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
@@ -85,9 +85,9 @@ const Cube = () => {
     //Test cube creation
     childrenMeshes.current = [];
 
-    scene.add(AddCubeMesh({x:5, y:1, z:4}, {x:13, y:-10, z:20}));
-    scene.add(AddCubeMesh({x:7, y:1, z:5}, {x:3, y:10, z:10}));
-    scene.add(AddCubeMesh({x:6, y:1, z:3}, {x:-5, y:1, z:-20}));
+    scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:0, y:0, z:0}));
+    scene.add(AddCubeMesh({x:3, y:3, z:3}, {x:0, y:0, z:0}));
+    scene.add(AddCubeMesh({x:3, y:1, z:3}, {x:0, y:0, z:0}));
 
     console.log(childrenMeshes.current);
 
@@ -227,6 +227,7 @@ const Cube = () => {
         rotationStruct.current.rotateEndPoint
       );
 
+      rotateQuaternion = rotateQuaternion.Normalized();
       rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
       RotateChildren(childrenMeshes.current, rotateQuaternion, QuaternionLib.RotationQuaternion.ConstructQuaternionFromThree(cubeRef.current.quaternion), cubeRef.current);
 
