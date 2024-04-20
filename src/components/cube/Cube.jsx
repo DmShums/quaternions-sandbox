@@ -20,13 +20,11 @@ const Cube = () => {
     const geometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.MeshPhongMaterial({ color: 0xaeb0ff });
     const cubeMesh = new THREE.Mesh(geometry, material);
-    const cubeAxesHelper = new THREE.AxesHelper(3);
 
     cubeMesh.position.set(position.x, position.y, position.z);
     cubeMesh.rotation.set(rotation.x, rotation.y, rotation.y);
 
     childrenMeshes.current.push(cubeMesh);
-    cubeMesh.add(cubeAxesHelper);
     return cubeMesh;
   }
 
@@ -65,8 +63,7 @@ const Cube = () => {
 
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
     }
-    const cubeAxesHelper = new THREE.AxesHelper(3);
-    cubeRef.current.add(cubeAxesHelper);
+
     // Add lights to the scene
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
@@ -250,6 +247,37 @@ const Cube = () => {
 
     interactionManager.add(cubeRef.current);
     cubeRef.current.addEventListener("mousedown", onDocumentMouseDown);
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    let axesVisible = false;
+
+    renderer.domElement.addEventListener("dblclick", onClick);
+
+    function onClick(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects([cubeRef.current], true);
+
+      if (intersects.length > 0) {
+        if (!axesVisible) {
+          const cubeAxesHelper = new THREE.AxesHelper(3);
+          cubeRef.current.add(cubeAxesHelper);
+          axesVisible = true;
+        } else {
+          cubeRef.current.remove(
+            cubeRef.current.children.find(
+              (child) => child instanceof THREE.AxesHelper
+            )
+          );
+          axesVisible = false;
+        }
+      }
+    }
 
     function rotateWithQuaternion() {
       const newX = rotationObj.x === oldX ? 0 : rotationObj.x - oldX;

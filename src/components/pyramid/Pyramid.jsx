@@ -39,11 +39,9 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
     const pyramidMesh = new THREE.Mesh(geometry, material);
     pyramidMesh.position.y += 2;
 
-    scene.add(pyramidMesh);
-    const pyramidAxesHelper = new THREE.AxesHelper(3);
+    pyramidRef.current = pyramidMesh;
 
-    pyramidRef.current = pyramidMesh; // Store a reference to the pyramid mesh
-    pyramidRef.current.add(pyramidAxesHelper);
+    scene.add(pyramidMesh);
 
     const light = new THREE.HemisphereLight("#FFFFFF", "#757575", 1.7);
     scene.add(light);
@@ -139,6 +137,38 @@ const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
         "XZY"
       );
       newEuler.applyRotationToObject(pyramidRef.current);
+    }
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    let axesVisible = false;
+
+    renderer.domElement.addEventListener("dblclick", onClick);
+
+    function onClick(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects([pyramidRef.current], true);
+
+      if (intersects.length > 0) {
+        if (!axesVisible) {
+          const cubeAxesHelper = new THREE.AxesHelper(3);
+          pyramidRef.current.add(cubeAxesHelper);
+          axesVisible = true;
+        } else {
+          pyramidRef.current.remove(
+            pyramidRef.current.children.find(
+              (child) => child instanceof THREE.AxesHelper
+            )
+          );
+          axesVisible = false;
+        }
+      }
     }
 
     const animate = () => {
