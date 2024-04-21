@@ -284,13 +284,35 @@ const Cube = () => {
       const newY = rotationObj.y === oldY ? 0 : rotationObj.y - oldY;
       const newZ = rotationObj.z === oldZ ? 0 : rotationObj.z - oldZ;
 
+<<<<<<< HEAD
+      const newX = rotation.x === oldX ? 0 : rotation.x - oldX;
+      const newY = rotation.y === oldY ? 0 : rotation.y - oldY;
+      const newZ = rotation.z === oldZ ? 0 : rotation.z - oldZ;
+
+      oldX = rotation.x;
+      oldY = rotation.y;
+      oldZ = rotation.z;
+=======
       oldX = rotationObj.x;
       oldY = rotationObj.y;
       oldZ = rotationObj.z;
 
+>>>>>>> dc107e9a0d312292eed7bd67f8750696cbb2926e
       const euler = new EulerLib.Euler(newX, newY, newZ);
+
       const { q0, q1, q2, q3 } = Convert.convertEulerToQuaternion(euler);
 
+<<<<<<< HEAD
+      const rotationQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromAxes(q0, q1, q2, q3);
+       
+      const rotMatrix = Convert.convertEulerToMatrix(euler);
+      console.log(rotMatrix);
+      const customPos = new QuaternionLib.Vector3(cubeRef.current.position.x,cubeRef.current.position.y,cubeRef.current.position.z); 
+      const newPos = customPos.PreMultiplyByMatrix(rotMatrix);
+      cubeRef.current.position.set(new THREE.Vector3(newPos.GetX(), newPos.GetY(), newPos.GetZ()));
+      // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
+=======
       const rotationQuaternion = new QuaternionLib.RotationQuaternion(
         0,
         0,
@@ -310,6 +332,7 @@ const Cube = () => {
         cubeRef.current
       );
     }
+>>>>>>> dc107e9a0d312292eed7bd67f8750696cbb2926e
 
     function rotateWithEuler() {
       oldX = rotationObj.x;

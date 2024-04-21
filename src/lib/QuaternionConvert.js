@@ -64,6 +64,24 @@ export function convertQuaternionToMatrix(quaternion) {
   return rotationMatrix;
 }
 
+export function convertEulerToMatrix(euler)
+{
+  let degToRad = Math.PI / 180;
+  let cosU = Math.cos(euler.GetX() * degToRad);
+  let sinU = Math.sin(euler.GetX() * degToRad);
+
+  let cosV = Math.cos(euler.GetY() * degToRad);
+  let sinV = Math.sin(euler.GetY() * degToRad);
+
+  let cosW = Math.cos(euler.GetZ() * degToRad);
+  let sinW = Math.sin(euler.GetZ() * degToRad);
+
+  let row1 = [cosV*cosW, sinU*sinV*cosW - cosU*sinW, sinU*sinW+cosU*sinV*cosW];
+  let row2 = [cosV*sinW, cosU*cosW+sinU*sinV*sinW, cosU*sinV*sinW-sinU*cosW];
+  let row3 = [-sinV, sinU*cosV, cosU*cosV];
+  return [row1, row2, row3];
+}
+
 export function convertMatrixToQuaternion(matrix) {
   let q_0 = Math.sqrt(1 + matrix[0][0] + matrix[1][1] + matrix[2][2]) / 2;
   let q_1 = Math.sqrt(1 + matrix[0][0] - matrix[1][1] - matrix[2][2]) / 2;
