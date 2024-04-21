@@ -1,5 +1,29 @@
 import * as THREE from "three";
 
+export function MultiplyTwoMatrices(matrix1, matrix2)
+{
+  const m1Rows = matrix1.length;
+  const m1Cols = matrix1[0].length;
+  const m2Rows = matrix2.length;
+  const m2Cols = matrix2[0].length;
+
+  if (m1Cols !== m2Rows) {
+    throw new Error('Invalid matrix dimensions for multiplication. Inner dimensions must be equal.');
+  }
+
+  const result = new Array(m1Rows).fill(null).map(() => new Array(m2Cols).fill(0));
+
+  for (let i = 0; i < m1Rows; i++) {
+    for (let j = 0; j < m2Cols; j++) {
+      for (let k = 0; k < m1Cols; k++) {
+        result[i][j] += matrix1[i][k] * matrix2[k][j];
+      }
+    }
+  }
+
+  return result;
+}
+
 export class Vector3 {
   constructor(x, y, z) {
     this.x = x;
@@ -53,13 +77,10 @@ export class Vector3 {
 
   PreMultiplyByMatrix(matrix)
   {
-    console.log(matrix);
     let transformedVector = new Vector3(0,0,0);
     let newX = matrix[0][0]*this.x + matrix[0][1]*this.y + matrix[0][2]*this.z;
     let newY = matrix[1][0]*this.x + matrix[1][1]*this.y + matrix[1][2]*this.z;
     let newZ = matrix[2][0]*this.x + matrix[2][1]*this.y + matrix[2][2]*this.z;
-
-    console.log(newX, newY, newZ);
 
     transformedVector.SetX(newX);
     transformedVector.SetY(newY);
@@ -295,7 +316,6 @@ export class RotationQuaternion {
       );
 
       resultWorldPos.add(globPosParent);
-      //   console.log(globPosParent.distanceTo(resultWorldPos));
 
       threeObject.position.copy(resultWorldPos);
     }
