@@ -16,9 +16,8 @@ const Cube = () => {
   const childrenNormalizedPosition = useRef(null);
   const rotationStruct = useRef(null);
 
-  function AddCubeMesh(position, rotation)
-  {
-    const geometry = new THREE.BoxGeometry(2,2,2);
+  function AddCubeMesh(position, rotation) {
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.MeshPhongMaterial({ color: 0xaeb09f });
     const cubeMesh = new THREE.Mesh(geometry, material);
     cubeMesh.position.set(position.x, position.y, position.z);
@@ -98,11 +97,11 @@ const Cube = () => {
     childrenMeshes.current = [];
     childrenNormalizedPosition.current = [];
 
-    scene.add(AddCubeMesh({x:3, y:7, z:3}, {x:-5, y:0, z:0}));
-    scene.add(AddCubeMesh({x:4, y:5, z:4}, {x:0, y:0, z:10}));
+    scene.add(AddCubeMesh({ x: 3, y: 7, z: 3 }, { x: -5, y: 0, z: 0 }));
+    scene.add(AddCubeMesh({ x: 4, y: 5, z: 4 }, { x: 0, y: 0, z: 10 }));
 
-    scene.add(AddCubeMesh({x:-4, y:5, z:-4}, {x:15, y:0, z:0}));
-    scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:0, y:20, z:0}));
+    scene.add(AddCubeMesh({ x: -4, y: 5, z: -4 }, { x: 15, y: 0, z: 0 }));
+    scene.add(AddCubeMesh({ x: -3, y: 3, z: -3 }, { x: 0, y: 20, z: 0 }));
 
     //Swipe rotation code
     const cubeRotationStruct = {
@@ -232,6 +231,26 @@ const Cube = () => {
       );
 
       rotateQuaternion = rotateQuaternion.Normalized();
+      const eulerOfRotationQ =
+        Convert.convertQuaternionToEuler(rotateQuaternion);
+      let newX = (rotationObj.x + eulerOfRotationQ.roll) % 360;
+      let newY = (rotationObj.y + eulerOfRotationQ.pitch) % 360;
+      let newZ = (rotationObj.z + eulerOfRotationQ.yaw) % 360;
+
+      if (newX < 0) newX += 360;
+      if (newY < 0) newY += 360;
+      if (newZ < 0) newZ += 360;
+
+      rotationObj.x = newX;
+      rotationObj.y = newY;
+      rotationObj.z = newZ;
+
+      oldX = rotationObj.x;
+      oldY = rotationObj.y;
+      oldZ = rotationObj.z;
+
+      cubeRotationFolder.updateDisplay();
+
       rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
       RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
 
@@ -288,14 +307,23 @@ const Cube = () => {
           q2,
           q3
         );
-      
+
       rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
+      RotateChildren(
+        childrenMeshes.current,
+        rotationQuaternion,
+        cubeRef.current
+      );
     }
 
     function rotateWithEuler(euler) {
       EulerLib.ApplyStandartizedOrderRotationIntrinsic(cubeRef.current, euler);
-      RotateChildrenEuler(childrenMeshes.current, childrenNormalizedPosition.current, euler, cubeRef.current);
+      RotateChildrenEuler(
+        childrenMeshes.current,
+        childrenNormalizedPosition.current,
+        euler,
+        cubeRef.current
+      );
     }
 
     const animate = () => {
@@ -311,17 +339,16 @@ const Cube = () => {
       oldZ = rotationObj.z;
 
       const euler = new EulerLib.Euler(newX, newY, newZ);
-/////////////////////////////////////////////
+      /////////////////////////////////////////////
       let typeOfRotation = localStorage.getItem("selectedRotation");
-      if(newX != 0 || newY != 0 || newZ != 0)
-      {
+      if (newX != 0 || newY != 0 || newZ != 0) {
         if (typeOfRotation == "quaternion") {
           rotateWithQuaternion(euler);
         } else {
           rotateWithEuler(euler);
         }
       }
-/////////////////////////////////////////////
+      /////////////////////////////////////////////
       renderer.render(scene, camera);
     };
 

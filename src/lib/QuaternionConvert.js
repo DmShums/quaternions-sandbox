@@ -13,10 +13,10 @@ export function convertAxisToQuaternion(x, y, z, a) {
 }
 
 export function convertQuaternionToAxis(quaternion) {
-  const q_0 = quaternion.GetQ_0;
-  const q_1 = quaternion.GetQ_1;
-  const q_2 = quaternion.GetQ_2;
-  const q_3 = quaternion.GetQ_3;
+  const q_0 = quaternion.GetQ_0();
+  const q_1 = quaternion.GetQ_1();
+  const q_2 = quaternion.GetQ_2();
+  const q_3 = quaternion.GetQ_3();
 
   let angle;
   let x;
@@ -40,10 +40,10 @@ export function convertQuaternionToAxis(quaternion) {
 }
 
 export function convertQuaternionToMatrix(quaternion) {
-  const q_0 = quaternion.GetQ_0;
-  const q_1 = quaternion.GetQ_1;
-  const q_2 = quaternion.GetQ_2;
-  const q_3 = quaternion.GetQ_3;
+  const q_0 = quaternion.GetQ_0();
+  const q_1 = quaternion.GetQ_1();
+  const q_2 = quaternion.GetQ_2();
+  const q_3 = quaternion.GetQ_3();
 
   const rotationMatrix = [
     [
@@ -99,12 +99,11 @@ export function convertEulerToMatrix(euler) {
   return [row1, row2, row3];
 }
 
-export function convertMatrixToEuler(matrix)
-{
+export function convertMatrixToEuler(matrix) {
   let radToDeg = 180 / Math.PI;
-  let angleZ = Math.atan2(matrix[1][0]/matrix[0][0]) * radToDeg;
+  let angleZ = Math.atan2(matrix[1][0] / matrix[0][0]) * radToDeg;
   let angleY = -Math.asin(matrix[2][0]) * radToDeg;
-  let angleX = Math.atan2(matrix[2][1]/matrix[2][2]) * radToDeg;
+  let angleX = Math.atan2(matrix[2][1] / matrix[2][2]) * radToDeg;
 
   return new Euler(angleX, angleY, angleZ);
 }
@@ -162,4 +161,23 @@ export function convertEulerToQuaternion(euler) {
   const q3 = cx * cy * sz - sx * sy * cz;
 
   return { q0, q1, q2, q3 };
+}
+
+export function convertQuaternionToEuler(quaternion) {
+  const q0 = quaternion.GetQ_0();
+  const q1 = quaternion.GetQ_1();
+  const q2 = quaternion.GetQ_2();
+  const q3 = quaternion.GetQ_3();
+
+  const roll = Math.atan2(2 * (q0 * q1 + q2 * q3), 1 - 2 * (q1 * q1 + q2 * q2));
+
+  const pitch = Math.asin(2 * (q0 * q2 - q3 * q1));
+
+  const yaw = Math.atan2(2 * (q0 * q3 + q1 * q2), 1 - 2 * (q2 * q2 + q3 * q3));
+
+  const rollDeg = roll * (180 / Math.PI);
+  const pitchDeg = pitch * (180 / Math.PI);
+  const yawDeg = yaw * (180 / Math.PI);
+
+  return { roll: rollDeg, pitch: pitchDeg, yaw: yawDeg };
 }
