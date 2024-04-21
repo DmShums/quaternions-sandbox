@@ -31,7 +31,6 @@ import * as THREE from "three";
 
 export function ApplyStandartizedOrderRotationIntrinsic(threeMesh, euler)
 {
-  console.log("Intrinsic:", euler);
   threeMesh.rotateZ((euler.GetZ() * Math.PI)/180);
   threeMesh.rotateY((euler.GetY() * Math.PI)/180);
   threeMesh.rotateX((euler.GetX() * Math.PI)/180);
@@ -118,6 +117,7 @@ export class Euler {
 
     resultWorldPos.add(globPosParent);
     norm[0] = postionTransformationMatrix;
+
     threeObject.position.copy(resultWorldPos);
     
     // ApplyStandartizedOrderRotationIntrinsic(threeObject, this);
@@ -125,12 +125,6 @@ export class Euler {
     const radToDeg = 180/Math.PI;
     const customParentEuler = new Euler(parentEuler.x * radToDeg, parentEuler.y * radToDeg, parentEuler.z * radToDeg);
     ApplyStandartizedOrderRotationExtrinsic(threeObject, this, customParentEuler);
-    // const matrixAsEuler = convertMatrixToEuler(postionTransformationMatrix);
-    // threeObject.rotation.copy(norm[2]);
-
-    // threeObject.rotateZ((matrixAsEuler.GetZ() * Math.PI)/180);
-    // threeObject.rotateY((matrixAsEuler.GetY() * Math.PI)/180);
-    // threeObject.rotateX((matrixAsEuler.GetX() * Math.PI)/180);
   }
 
   set(x, y, z, order) {
