@@ -148,6 +148,7 @@ const Cube = () => {
 
       handleRotation();
 
+
       rotationStruct.current.startPoint.x = event.coords.x;
       rotationStruct.current.startPoint.y = event.coords.y;
 
@@ -312,7 +313,9 @@ const Cube = () => {
       RotateChildren(
         childrenMeshes.current,
         rotationQuaternion,
-        cubeRef.current
+        cubeRef.current,
+        childrenNormalizedPosition.current,
+        euler
       );
     }
 

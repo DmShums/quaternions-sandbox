@@ -289,7 +289,7 @@ export class RotationQuaternion {
     threeObject.quaternion.copy(threeQuat);
   }
 
-  ApplyToThreeObjectAsGlobal(threeObject, parentMesh) {
+  ApplyToThreeObjectAsGlobal(threeObject, parentMesh, norm = null, eulerRotation = null) {
     this.ApplyToThreeObjectDirect(threeObject);
 
     if (parentMesh) {
@@ -317,6 +317,12 @@ export class RotationQuaternion {
       resultWorldPos.add(globPosParent);
 
       threeObject.position.copy(resultWorldPos);
+
+      if(norm && eulerRotation)
+      {
+        const newPosMatrix = GetVectorTransformMatrix(eulerRotation, norm);
+        norm[0] = newPosMatrix;
+      }
     }
   }
 }

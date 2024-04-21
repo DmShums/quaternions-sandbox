@@ -3,12 +3,16 @@
 import * as quatlib from "./QuaternionLibrary";
 import * as eulerLib from "./EulerAnglesLibrary"
 
-export function RotateChildren(childrenMeshesToRotate, rotationQuaternion, parentMesh)
+export function RotateChildren(childrenMeshesToRotate, rotationQuaternion, parentMesh, childrenNormalizedPositions=null, eulerRotation=null)
 {
-    for(let mesh of childrenMeshesToRotate)
+    console.log("Importatn stuff!");
+    for (let i = 0; i < childrenMeshesToRotate.length; i++)
     {
-        rotationQuaternion.ApplyToThreeObjectAsGlobal(mesh, parentMesh);
-    }
+        let mesh = childrenMeshesToRotate[i];
+        let norm = childrenNormalizedPositions[i];
+
+        rotationQuaternion.ApplyToThreeObjectAsGlobal(mesh, parentMesh, norm, eulerRotation);
+    }    
 }
 
 export function RotateChildrenEuler(childrenMeshesToRotate, childrenNormalizedPositions, eulerRotation, parentMesh)
