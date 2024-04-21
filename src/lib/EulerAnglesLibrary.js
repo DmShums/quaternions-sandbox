@@ -1,4 +1,4 @@
-import { convertEulerToMatrix } from "./QuaternionConvert";
+import { convertEulerToMatrix, convertMatrixToEuler } from "./QuaternionConvert";
 import {MultiplyTwoMatrices, RotationQuaternion, Vector3} from "./QuaternionLibrary";
 import * as THREE from "three";
 
@@ -31,16 +31,25 @@ import * as THREE from "three";
 
 export function ApplyStandartizedOrderRotationIntrinsic(threeMesh, euler)
 {
+  console.log("Intrinsic:", euler);
   threeMesh.rotateZ((euler.GetZ() * Math.PI)/180);
   threeMesh.rotateY((euler.GetY() * Math.PI)/180);
   threeMesh.rotateX((euler.GetX() * Math.PI)/180);
 }
 
-export function ApplyStandartizedOrderRotationExtrinsic(threeMesh, euler)
+export function ApplyStandartizedOrderRotationExtrinsic(threeMesh, newParentEulerIntrinsic, parentGlobalEuler)
 {
-  threeMesh.rotateOnWorldAxis(new THREE.Vector3(1,0,0), (euler.GetX() * Math.PI)/180);
-  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (euler.GetY() * Math.PI)/180);
-  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,0,1), (euler.GetZ() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(1,0,0), (-parentGlobalEuler.GetX() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (-parentGlobalEuler.GetY() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,0,1), (-parentGlobalEuler.GetZ() * Math.PI)/180);
+
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,0,1), (newParentEulerIntrinsic.GetZ() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (newParentEulerIntrinsic.GetY() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(1,0,0), (newParentEulerIntrinsic.GetX() * Math.PI)/180);
+
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,0,1), (parentGlobalEuler.GetZ() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), (parentGlobalEuler.GetY() * Math.PI)/180);
+  threeMesh.rotateOnWorldAxis(new THREE.Vector3(1,0,0), (parentGlobalEuler.GetX() * Math.PI)/180);
 }
 
 export class Euler {
@@ -101,10 +110,20 @@ export class Euler {
     );
 
     resultWorldPos.add(globPosParent);
-    
-    ApplyStandartizedOrderRotationExtrinsic(threeObject, this);
     norm[0] = postionTransformationMatrix;
     threeObject.position.copy(resultWorldPos);
+    
+    // ApplyStandartizedOrderRotationIntrinsic(threeObject, this);
+    const parentEuler = parentMesh.rotation;
+    const radToDeg = 180/Math.PI;
+    const customParentEuler = new Euler(parentEuler.x * radToDeg, parentEuler.y * radToDeg, parentEuler.z * radToDeg);
+    ApplyStandartizedOrderRotationExtrinsic(threeObject, this, customParentEuler);
+    // const matrixAsEuler = convertMatrixToEuler(postionTransformationMatrix);
+    // threeObject.rotation.copy(norm[2]);
+
+    // threeObject.rotateZ((matrixAsEuler.GetZ() * Math.PI)/180);
+    // threeObject.rotateY((matrixAsEuler.GetY() * Math.PI)/180);
+    // threeObject.rotateX((matrixAsEuler.GetX() * Math.PI)/180);
   }
 
   set(x, y, z, order) {

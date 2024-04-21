@@ -19,7 +19,7 @@ const Cube = () => {
   function AddCubeMesh(position, rotation)
   {
     const geometry = new THREE.BoxGeometry(2,2,2);
-    const material = new THREE.MeshPhongMaterial({ color: 0xaeb0ff });
+    const material = new THREE.MeshPhongMaterial({ color: 0xaeb09f });
     const cubeMesh = new THREE.Mesh(geometry, material);
     cubeMesh.position.set(position.x, position.y, position.z);
     cubeMesh.rotation.set(rotation.x, rotation.y, rotation.y);
@@ -91,11 +91,11 @@ const Cube = () => {
     childrenMeshes.current = [];
     childrenNormalizedPosition.current = [];
 
-    scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:5, y:45, z:0}));
-    scene.add(AddCubeMesh({x:4, y:3, z:4}, {x:15, y:15, z:0}));
+    scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:-5, y:0, z:0}));
+    scene.add(AddCubeMesh({x:4, y:3, z:4}, {x:0, y:0, z:10}));
 
-    scene.add(AddCubeMesh({x:-4, y:0, z:-4}, {x:45, y:50, z:0}));
-    scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:45, y:0, z:45}));
+    scene.add(AddCubeMesh({x:-4, y:0, z:-4}, {x:15, y:0, z:0}));
+    scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:0, y:20, z:0}));
 
     //Swipe rotation code
     const cubeRotationStruct = {
@@ -233,9 +233,9 @@ const Cube = () => {
         rotationStruct.current.rotateEndPoint
       );
 
-      rotateQuaternion = rotateQuaternion.Normalized();
-      rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
+      // rotateQuaternion = rotateQuaternion.Normalized();
+      // rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      // RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
@@ -271,7 +271,6 @@ const Cube = () => {
 
       //Intrinsic, Z->Y->X
       EulerLib.ApplyStandartizedOrderRotationIntrinsic(cubeRef.current, euler);
-
       RotateChildrenEuler(childrenMeshes.current, childrenNormalizedPosition.current, euler, cubeRef.current);
 
       renderer.render(scene, camera);

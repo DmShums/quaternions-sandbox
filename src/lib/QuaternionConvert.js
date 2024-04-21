@@ -1,3 +1,5 @@
+import { Euler } from "./EulerAnglesLibrary";
+
 export function convertAxisToQuaternion(x, y, z, a) {
   const cos_a2 = Math.cos(a / 2);
   const sin_a2 = Math.sin(a / 2);
@@ -80,6 +82,16 @@ export function convertEulerToMatrix(euler)
   let row2 = [cosV*sinW, cosU*cosW+sinU*sinV*sinW, cosU*sinV*sinW-sinU*cosW];
   let row3 = [-sinV, sinU*cosV, cosU*cosV];
   return [row1, row2, row3];
+}
+
+export function convertMatrixToEuler(matrix)
+{
+  let radToDeg = 180 / Math.PI;
+  let angleZ = Math.atan2(matrix[1][0]/matrix[0][0]) * radToDeg;
+  let angleY = -Math.asin(matrix[2][0]) * radToDeg;
+  let angleX = Math.atan2(matrix[2][1]/matrix[2][2]) * radToDeg;
+
+  return new Euler(angleX, angleY, angleZ);
 }
 
 export function convertMatrixToQuaternion(matrix) {
