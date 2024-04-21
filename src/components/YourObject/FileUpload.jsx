@@ -13,6 +13,7 @@ const FileUpload = ({ onFileChange }) => {
   const handleClearFile = () => {
     setFileUploaded(false);
     onFileChange(null);
+    window.location.reload();
   };
 
   return (
