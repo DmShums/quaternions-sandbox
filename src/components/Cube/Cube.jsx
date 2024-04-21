@@ -69,7 +69,7 @@ const Cube = () => {
       const material = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Change color to blue
       const cubeMesh = new THREE.Mesh(geometry, material);
 
-      cubeMesh.position.set(3, 10, 3);
+      cubeMesh.position.set(3, 8, 3);
       scene.add(cubeMesh);
 
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
@@ -124,16 +124,6 @@ const Cube = () => {
     };
 
     rotationStruct.current = cubeRotationStruct;
-
-    function onWindowResize() {
-      windowHalfX = window.innerWidth / 2;
-      windowHalfY = window.innerHeight / 2;
-
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
 
     function onDocumentMouseDown(event) {
       orbit.enableRotate = false;

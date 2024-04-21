@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GetVectorTransformMatrix } from "./EulerAnglesLibrary";
 
 export function MultiplyTwoMatrices(matrix1, matrix2)
 {
@@ -277,14 +278,12 @@ export class RotationQuaternion {
       RotationQuaternion.ConstructQuaternionFromThree(objQuat).Normalized();
 
     let resultQuat = this.PostMultiplyThisAsFirst(customObjQuat);
-
     const threeQuat = new THREE.Quaternion(
       resultQuat.GetQ_1(),
       resultQuat.GetQ_2(),
       resultQuat.GetQ_3(),
       resultQuat.GetQ_0()
     );
-
     threeQuat.normalize();
 
     threeObject.quaternion.copy(threeQuat);

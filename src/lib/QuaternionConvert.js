@@ -66,6 +66,14 @@ export function convertQuaternionToMatrix(quaternion) {
   return rotationMatrix;
 }
 
+export function convertQuaternionToEuler(quaternion)
+{
+  let angleX = Math.atan2(2*(quaternion.GetQ_0()*quaternion.GetQ_1() + quaternion.GetQ_1() * quaternion.GetQ_3()),1-2*(Math.pow(quaternion.GetQ_1(),2)+ Math.pow(quaternion.GetQ_2(), 2)));
+  let angleY = -Math.PI/2 + 2* Math.atan2(Math.sqrt(1+2*(quaternion.GetQ_0()*quaternion.GetQ_2() - quaternion.GetQ_0() * quaternion.GetQ_3())), Math.sqrt(1-2*(quaternion.GetQ_0()*quaternion.GetQ_2() - quaternion.GetQ_0() * quaternion.GetQ_3())));
+  let angleZ = Math.atan2(2*(quaternion.GetQ_0() * quaternion.GetQ_3() + quaternion.GetQ_1() * quaternion.GetQ_2()), 1-2*(Math.pow(quaternion.GetQ_2(),2)+ Math.pow(quaternion.GetQ_3(), 2)));
+  return new Euler(angleX, angleY, angleZ);
+}
+
 export function convertEulerToMatrix(euler) {
   let degToRad = Math.PI / 180;
   let cosU = Math.cos(euler.GetX() * degToRad);

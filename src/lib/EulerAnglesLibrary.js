@@ -52,6 +52,15 @@ export function ApplyStandartizedOrderRotationExtrinsic(threeMesh, newParentEule
   threeMesh.rotateOnWorldAxis(new THREE.Vector3(1,0,0), (parentGlobalEuler.GetX() * Math.PI)/180);
 }
 
+export function GetVectorTransformMatrix(euler, norm)
+{
+  const oldMatrix = norm[0];
+  const newMatrix = convertEulerToMatrix(euler);
+  const postionTransformationMatrix = MultiplyTwoMatrices(oldMatrix, newMatrix);
+
+  return postionTransformationMatrix;
+}
+
 export class Euler {
   constructor(x, y, z, order = "XYZ") {
     this.x = x;
@@ -96,9 +105,7 @@ export class Euler {
     const globPosParent = new THREE.Vector3();
     parentMesh.getWorldPosition(globPosParent);
 
-    const oldMatrix = norm[0];
-    const newMatrix = convertEulerToMatrix(this);
-    const postionTransformationMatrix = MultiplyTwoMatrices(oldMatrix, newMatrix);
+    const postionTransformationMatrix = GetVectorTransformMatrix(this, norm);
 
     const initNormPos = norm[1];
     const newTransformedPos = initNormPos.PreMultiplyByMatrix(postionTransformationMatrix);
