@@ -5,14 +5,22 @@ import * as eulerLib from "./EulerAnglesLibrary"
 
 export function RotateChildren(childrenMeshesToRotate, rotationQuaternion, parentMesh, childrenNormalizedPositions=null, eulerRotation=null)
 {
-    console.log("Importatn stuff!");
-    for (let i = 0; i < childrenMeshesToRotate.length; i++)
+    if(childrenNormalizedPositions && eulerRotation)
     {
-        let mesh = childrenMeshesToRotate[i];
-        let norm = childrenNormalizedPositions[i];
-
-        rotationQuaternion.ApplyToThreeObjectAsGlobal(mesh, parentMesh, norm, eulerRotation);
-    }    
+        for (let i = 0; i < childrenMeshesToRotate.length; i++)
+        {
+            let mesh = childrenMeshesToRotate[i];
+            let norm = childrenNormalizedPositions[i];
+            rotationQuaternion.ApplyToThreeObjectAsGlobal(mesh, parentMesh, norm, eulerRotation);
+        }  
+    } else 
+    {
+        for (let i = 0; i < childrenMeshesToRotate.length; i++)
+        {
+            let mesh = childrenMeshesToRotate[i];
+            rotationQuaternion.ApplyToThreeObjectAsGlobal(mesh, parentMesh);
+        } 
+    }     
 }
 
 export function RotateChildrenEuler(childrenMeshesToRotate, childrenNormalizedPositions, eulerRotation, parentMesh)
