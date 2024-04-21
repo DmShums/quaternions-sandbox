@@ -84,11 +84,11 @@ const Cube = () => {
 
     // Setup dat.gui for controlling cube rotation
     const gui = new dat.GUI();
-    const rotation = { x: 0, y: 0, z: 0 };
+    const rotationObj = { x: 0, y: 0, z: 0 };
     const cubeRotationFolder = gui.addFolder("Cube Rotation");
-    cubeRotationFolder.add(rotation, "x", 0, 360).name("Rotation X");
-    cubeRotationFolder.add(rotation, "y", 0, 360).name("Rotation Y");
-    cubeRotationFolder.add(rotation, "z", 0, 360).name("Rotation Z");
+    cubeRotationFolder.add(rotationObj, "x", 0, 360).name("Rotation X");
+    cubeRotationFolder.add(rotationObj, "y", 0, 360).name("Rotation Y");
+    cubeRotationFolder.add(rotationObj, "z", 0, 360).name("Rotation Z");
 
     let oldX = 0;
     let oldY = 0;
@@ -287,19 +287,7 @@ const Cube = () => {
       }
     }
 
-    const animate = () => {
-      requestAnimationFrame(animate);
-      interactionManager.update();
-
-      const newX = rotation.x === oldX ? 0 : rotation.x - oldX;
-      const newY = rotation.y === oldY ? 0 : rotation.y - oldY;
-      const newZ = rotation.z === oldZ ? 0 : rotation.z - oldZ;
-
-      oldX = rotation.x;
-      oldY = rotation.y;
-      oldZ = rotation.z;
-
-      const euler = new EulerLib.Euler(newX, newY, newZ);
+    function rotateWithQuaternion(euler) {
       const { q0, q1, q2, q3 } = Convert.convertEulerToQuaternion(euler);
 
       const rotationQuaternion =
@@ -309,10 +297,15 @@ const Cube = () => {
           q2,
           q3
         );
-      // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
+      rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      RotateChildren(
+        childrenMeshes.current,
+        rotationQuaternion,
+        cubeRef.current
+      );
+    }
 
-      //Intrinsic, Z->Y->X
+    function rotateWithEuler(euler) {
       EulerLib.ApplyStandartizedOrderRotationIntrinsic(cubeRef.current, euler);
 
       RotateChildrenEuler(
@@ -321,6 +314,28 @@ const Cube = () => {
         euler,
         cubeRef.current
       );
+    }
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      interactionManager.update();
+
+      const newX = rotationObj.x === oldX ? 0 : rotationObj.x - oldX;
+      const newY = rotationObj.y === oldY ? 0 : rotationObj.y - oldY;
+      const newZ = rotationObj.z === oldZ ? 0 : rotationObj.z - oldZ;
+
+      oldX = rotationObj.x;
+      oldY = rotationObj.y;
+      oldZ = rotationObj.z;
+
+      const euler = new EulerLib.Euler(newX, newY, newZ);
+
+      let typeOfRotation = localStorage.getItem("selectedRotation");
+      if (typeOfRotation == "quaternion") {
+        rotateWithQuaternion(euler);
+      } else {
+        rotateWithEuler(euler);
+      }
 
       renderer.render(scene, camera);
     };

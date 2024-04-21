@@ -1,15 +1,15 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import * as dat from "dat.gui"; // Import dat.gui
+import * as dat from "dat.gui";
 import * as QuaternionLib from "../../lib/QuaternionLibrary";
 import * as Convert from "../../lib/QuaternionConvert";
 import * as EulerLib from "../../lib/EulerAnglesLibrary";
 
 const Pyramid = ({ rotationX, rotationY, rotationZ }) => {
   const containerRef = useRef(null);
-  const pyramidRef = useRef(null); // Reference to the pyramid mesh
-  const guiRef = useRef(null); // Reference to dat.GUI instance
+  const pyramidRef = useRef(null);
+  const guiRef = useRef(null);
 
   useEffect(() => {
     const w = window.innerWidth;

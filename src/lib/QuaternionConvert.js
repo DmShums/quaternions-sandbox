@@ -64,8 +64,7 @@ export function convertQuaternionToMatrix(quaternion) {
   return rotationMatrix;
 }
 
-export function convertEulerToMatrix(euler)
-{
+export function convertEulerToMatrix(euler) {
   let degToRad = Math.PI / 180;
   let cosU = Math.cos(euler.GetX() * degToRad);
   let sinU = Math.sin(euler.GetX() * degToRad);
@@ -76,9 +75,17 @@ export function convertEulerToMatrix(euler)
   let cosW = Math.cos(euler.GetZ() * degToRad);
   let sinW = Math.sin(euler.GetZ() * degToRad);
 
-  let row1 = [cosV*cosW, sinU*sinV*cosW - cosU*sinW, sinU*sinW+cosU*sinV*cosW];
-  let row2 = [cosV*sinW, cosU*cosW+sinU*sinV*sinW, cosU*sinV*sinW-sinU*cosW];
-  let row3 = [-sinV, sinU*cosV, cosU*cosV];
+  let row1 = [
+    cosV * cosW,
+    sinU * sinV * cosW - cosU * sinW,
+    sinU * sinW + cosU * sinV * cosW,
+  ];
+  let row2 = [
+    cosV * sinW,
+    cosU * cosW + sinU * sinV * sinW,
+    cosU * sinV * sinW - sinU * cosW,
+  ];
+  let row3 = [-sinV, sinU * cosV, cosU * cosV];
   return [row1, row2, row3];
 }
 
@@ -118,9 +125,9 @@ export function convertMatrixToQuaternion(matrix) {
 }
 
 export function convertEulerToQuaternion(euler) {
-  const x = euler.GetX;
-  const y = euler.GetY;
-  const z = euler.GetZ;
+  const x = euler.GetX();
+  const y = euler.GetY();
+  const z = euler.GetZ();
 
   const cx = Math.cos((x * Math.PI) / 180 / 2);
   const sx = Math.sin((x * Math.PI) / 180 / 2);
