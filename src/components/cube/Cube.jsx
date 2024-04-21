@@ -233,9 +233,9 @@ const Cube = () => {
         rotationStruct.current.rotateEndPoint
       );
 
-      // rotateQuaternion = rotateQuaternion.Normalized();
-      // rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
-      // RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
+      rotateQuaternion = rotateQuaternion.Normalized();
+      rotateQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      RotateChildren(childrenMeshes.current, rotateQuaternion, cubeRef.current);
 
       rotationStruct.current.rotateEndPoint =
         rotationStruct.current.rotateStartPoint;
@@ -269,10 +269,13 @@ const Cube = () => {
       // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
       // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
 
-      //Intrinsic, Z->Y->X
-      EulerLib.ApplyStandartizedOrderRotationIntrinsic(cubeRef.current, euler);
-      RotateChildrenEuler(childrenMeshes.current, childrenNormalizedPosition.current, euler, cubeRef.current);
-
+      if(newX != 0 || newY != 0 || newZ != 0)
+      {
+        //Intrinsic, Z->Y->X
+        EulerLib.ApplyStandartizedOrderRotationIntrinsic(cubeRef.current, euler);
+        RotateChildrenEuler(childrenMeshes.current, childrenNormalizedPosition.current, euler, cubeRef.current);
+      }
+      
       renderer.render(scene, camera);
     };
 
