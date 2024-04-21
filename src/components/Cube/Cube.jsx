@@ -68,7 +68,7 @@ const Cube = () => {
       const material = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Change color to blue
       const cubeMesh = new THREE.Mesh(geometry, material);
 
-      cubeMesh.position.set(3, 8, 3);
+      cubeMesh.position.set(3, 10, 3);
       scene.add(cubeMesh);
 
       cubeRef.current = cubeMesh; // Store a reference to the cube mesh
