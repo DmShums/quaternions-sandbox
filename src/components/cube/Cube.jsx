@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui";
 import * as QuaternionLib from "../../lib/QuaternionLibrary";
-import {RotateChildren, RotateChildrenEuler} from "../../lib/RotationLogic"
+import { RotateChildren, RotateChildrenEuler } from "../../lib/RotationLogic";
 import * as Convert from "../../lib/QuaternionConvert";
 import * as EulerLib from "../../lib/EulerAnglesLibrary";
 import { InteractionManager } from "three.interactive";
@@ -16,6 +16,9 @@ const Cube = () => {
   const childrenNormalizedPosition = useRef(null);
   const rotationStruct = useRef(null);
 
+  function AddCubeMesh(position, rotation) {
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    const material = new THREE.MeshPhongMaterial({ color: 0xaeb0ff });
   function AddCubeMesh(position, rotation)
   {
     const geometry = new THREE.BoxGeometry(2,2,2);
@@ -28,7 +31,14 @@ const Cube = () => {
     initNormPosition.sub(cubeRef.current.position);
 
     childrenMeshes.current.push(cubeMesh);
-    childrenNormalizedPosition.current.push([Convert.convertEulerToMatrix(new EulerLib.Euler(0,0,0)), new QuaternionLib.Vector3(initNormPosition.x, initNormPosition.y, initNormPosition.z)]);
+    childrenNormalizedPosition.current.push([
+      Convert.convertEulerToMatrix(new EulerLib.Euler(0, 0, 0)),
+      new QuaternionLib.Vector3(
+        initNormPosition.x,
+        initNormPosition.y,
+        initNormPosition.z
+      ),
+    ]);
     return cubeMesh;
   }
 
@@ -40,11 +50,11 @@ const Cube = () => {
     scene.background = new THREE.Color("#242424");
 
     const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-    camera.rotation.copy(new THREE.Euler(-45,45,0,'YZX'));
+    camera.rotation.copy(new THREE.Euler(-45, 45, 0, "YZX"));
     camera.position.set(10, 10, 10);
 
-    const axesHelper = new THREE.AxesHelper(15);
-    scene.add(axesHelper);
+    const gridHelper = new THREE.GridHelper(100, 10);
+    scene.add(gridHelper);
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(w, h);
@@ -78,11 +88,11 @@ const Cube = () => {
 
     // Setup dat.gui for controlling cube rotation
     const gui = new dat.GUI();
-    const rotation = { x: 0, y: 0, z: 0 };
+    const rotationObj = { x: 0, y: 0, z: 0 };
     const cubeRotationFolder = gui.addFolder("Cube Rotation");
-    cubeRotationFolder.add(rotation, "x", 0, 360).name("Rotation X");
-    cubeRotationFolder.add(rotation, "y", 0, 360).name("Rotation Y");
-    cubeRotationFolder.add(rotation, "z", 0, 360).name("Rotation Z");
+    cubeRotationFolder.add(rotationObj, "x", 0, 360).name("Rotation X");
+    cubeRotationFolder.add(rotationObj, "y", 0, 360).name("Rotation Y");
+    cubeRotationFolder.add(rotationObj, "z", 0, 360).name("Rotation Z");
 
     let oldX = 0;
     let oldY = 0;
@@ -93,9 +103,13 @@ const Cube = () => {
 
     scene.add(AddCubeMesh({x:3, y:5, z:3}, {x:-5, y:0, z:0}));
     scene.add(AddCubeMesh({x:4, y:3, z:4}, {x:0, y:0, z:10}));
+    scene.add(AddCubeMesh({ x: 3, y: 5, z: 3 }, { x: 5, y: 45, z: 0 }));
+    scene.add(AddCubeMesh({ x: 4, y: 3, z: 4 }, { x: 15, y: 15, z: 0 }));
 
     scene.add(AddCubeMesh({x:-4, y:0, z:-4}, {x:15, y:0, z:0}));
     scene.add(AddCubeMesh({x:-3, y:3, z:-3}, {x:0, y:20, z:0}));
+    scene.add(AddCubeMesh({ x: -4, y: 0, z: -4 }, { x: 45, y: 50, z: 0 }));
+    scene.add(AddCubeMesh({ x: -3, y: 3, z: -3 }, { x: 45, y: 0, z: 45 }));
 
     //Swipe rotation code
     const cubeRotationStruct = {
@@ -140,7 +154,8 @@ const Cube = () => {
         y: event.coords.y,
       };
 
-      rotationStruct.current.rotateStartPoint = rotationStruct.current.rotateEndPoint = projectOnTrackball(0, 0);
+      rotationStruct.current.rotateStartPoint =
+        rotationStruct.current.rotateEndPoint = projectOnTrackball(0, 0);
     }
 
     function onDocumentMouseMove(event) {
@@ -249,22 +264,80 @@ const Cube = () => {
 
     interactionManager.add(cubeRef.current);
     cubeRef.current.addEventListener("mousedown", onDocumentMouseDown);
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let axesVisible = false;
+
+    renderer.domElement.addEventListener("dblclick", onClick);
+
+    function onClick(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects([cubeRef.current], true);
+
+      if (intersects.length > 0) {
+        if (!axesVisible) {
+          const cubeAxesHelper = new THREE.AxesHelper(3);
+          cubeRef.current.add(cubeAxesHelper);
+          axesVisible = true;
+        } else {
+          cubeRef.current.remove(
+            cubeRef.current.children.find(
+              (child) => child instanceof THREE.AxesHelper
+            )
+          );
+          axesVisible = false;
+        }
+      }
+    }
+
+    function rotateWithQuaternion(euler) {
+      const { q0, q1, q2, q3 } = Convert.convertEulerToQuaternion(euler);
+
+      const rotationQuaternion =
+        QuaternionLib.RotationQuaternion.ConstructQuaternionFromAxes(
+          q0,
+          q1,
+          q2,
+          q3
+        );
+      rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
+      RotateChildren(
+        childrenMeshes.current,
+        rotationQuaternion,
+        cubeRef.current
+      );
+    }
+
+    function rotateWithEuler(euler) {
+      EulerLib.ApplyStandartizedOrderRotationIntrinsic(cubeRef.current, euler);
+
+      RotateChildrenEuler(
+        childrenMeshes.current,
+        childrenNormalizedPosition.current,
+        euler,
+        cubeRef.current
+      );
+    }
 
     const animate = () => {
       requestAnimationFrame(animate);
       interactionManager.update();
 
-      const newX = rotation.x === oldX ? 0 : rotation.x - oldX;
-      const newY = rotation.y === oldY ? 0 : rotation.y - oldY;
-      const newZ = rotation.z === oldZ ? 0 : rotation.z - oldZ;
+      const newX = rotationObj.x === oldX ? 0 : rotationObj.x - oldX;
+      const newY = rotationObj.y === oldY ? 0 : rotationObj.y - oldY;
+      const newZ = rotationObj.z === oldZ ? 0 : rotationObj.z - oldZ;
 
-      oldX = rotation.x;
-      oldY = rotation.y;
-      oldZ = rotation.z;
+      oldX = rotationObj.x;
+      oldY = rotationObj.y;
+      oldZ = rotationObj.z;
 
       const euler = new EulerLib.Euler(newX, newY, newZ);
-      const { q0, q1, q2, q3 } = Convert.convertEulerToQuaternion(euler);
-
+/////////////////////////////////////////////
       const rotationQuaternion = QuaternionLib.RotationQuaternion.ConstructQuaternionFromAxes(q0, q1, q2, q3);
       // rotationQuaternion.ApplyToThreeObjectDirect(cubeRef.current);
       // RotateChildren(childrenMeshes.current, rotationQuaternion, cubeRef.current);
@@ -276,6 +349,13 @@ const Cube = () => {
         RotateChildrenEuler(childrenMeshes.current, childrenNormalizedPosition.current, euler, cubeRef.current);
       }
       
+      let typeOfRotation = localStorage.getItem("selectedRotation");
+      if (typeOfRotation == "quaternion") {
+        rotateWithQuaternion(euler);
+      } else {
+        rotateWithEuler(euler);
+      }
+/////////////////////////////////////////////
       renderer.render(scene, camera);
     };
 

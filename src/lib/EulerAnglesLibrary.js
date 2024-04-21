@@ -144,4 +144,9 @@ export class Euler {
   toArray() {
     return [this.x, this.y, this.z, this.order];
   }
+
+  applyRotationToObject(object) {
+    const threeEuler = new THREE.Euler(this.x, this.y, this.z, this.order);
+    object.rotation.copy(threeEuler);
+  }
 }
